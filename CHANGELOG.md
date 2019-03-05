@@ -1,4 +1,7 @@
 
+## 1.6.1
+ - Add thumbnail image
+
 ## 1.6.0
  - Upgrade for Factorio 0.17
 
