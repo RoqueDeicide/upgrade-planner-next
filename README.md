@@ -1,6 +1,6 @@
 # Upgrade Builder and Planner
 
-Upgrade Planner
+Continuation of the [Upgrade Builder and Planner](https://mods.factorio.com/mod/upgrade-planner) mod.
 
 Using the selection tool 'Upgrade Builder' you can select items to upgrade. Set your configuration using the mod menu, accessed with the button in the top left or the upgrade planner hotkey ('U' by default)
 
