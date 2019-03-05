@@ -58,7 +58,7 @@ function gui_init(player)
       sprite = "item/upgrade-builder",
       tooltip = {"upgrade-planner.button-tooltip"}
     }
-    button.style.visible = true
+    button.visible = true
   end
 end
 
@@ -138,21 +138,21 @@ function gui_open_frame(player)
   remove_button.style.maximal_height = 24
   remove_button.style.minimal_height = 24
   local rename_field = storage_flow.add{type = "textfield", name = "upgrade_planner_storage_rename_textfield", text = drop_down.get_item(drop_down.selected_index)}
-  rename_field.style.visible = false
+  rename_field.visible = false
   local confirm_button = storage_flow.add{type="sprite-button", name = "upgrade_planner_storage_confirm", sprite = "utility/confirm_slot", tooltip = {"upgrade-planner.confirm-storage-name"} }
   confirm_button.style = "green_slot_button"
   confirm_button.style.maximal_width = 24
   confirm_button.style.minimal_width = 24
   confirm_button.style.maximal_height = 24
   confirm_button.style.minimal_height = 24
-  confirm_button.style.visible = false
+  confirm_button.visible = false
   local cancel_button = storage_flow.add{type="sprite-button", name = "upgrade_planner_storage_cancel", sprite = "utility/set_bar_slot", tooltip = {"upgrade-planner.cancel-storage-name"} }
   cancel_button.style = "red_slot_button"
   cancel_button.style.maximal_width = 24
   cancel_button.style.minimal_width = 24
   cancel_button.style.maximal_height = 24
   cancel_button.style.minimal_height = 24
-  cancel_button.style.visible = false
+  cancel_button.visible = false
   local ruleset_grid = frame.add{
     type = "table",
     column_count = 6,
@@ -419,7 +419,7 @@ script.on_event(defines.events.on_gui_click, function(event)
   if name == "upgrade_planner_storage_rename" then
     local children = element.parent.children
     for k, child in pairs (children) do
-      child.style.visible = true
+      child.visible = true
     end
     children[4].text = children[1].get_item(children[1].selected_index)
     if children[4].text == "New storage" then
@@ -431,7 +431,7 @@ script.on_event(defines.events.on_gui_click, function(event)
   if name == "upgrade_planner_storage_cancel" then
     local children = element.parent.children
     for k = 4, 6 do
-      children[k].style.visible = false
+      children[k].visible = false
     end
     children[4].text = children[1].get_item(children[1].selected_index)
     return
@@ -447,7 +447,7 @@ script.on_event(defines.events.on_gui_click, function(event)
       return
     end
     for k = 4, 6 do
-      children[k].style.visible = false
+      children[k].visible = false
     end
     local items = children[1].items
     if index > #items then
@@ -1129,7 +1129,7 @@ script.on_event("upgrade-planner-hide", function(event)
   local player = game.players[event.player_index]
   local button_flow = mod_gui.get_button_flow(player)
   if button_flow["upgrade_planner_config_button"] then
-    button_flow["upgrade_planner_config_button"].style.visible = not button_flow.upgrade_planner_config_button.style.visible
+    button_flow["upgrade_planner_config_button"].visible = not button_flow.upgrade_planner_config_button.visible
     return
   end
   local button = button_flow.add
@@ -1140,7 +1140,7 @@ script.on_event("upgrade-planner-hide", function(event)
     sprite = "item/upgrade-builder",
     tooltip = {"upgrade-planner.button-tooltip"}
   }
-  button.style.visible = true
+  button.visible = true
 end)
 
 script.on_event(defines.events.on_gui_closed, function(event)
@@ -1203,7 +1203,7 @@ function export_config(player)
   textfield.style.maximal_height = 500
   textfield.text = enc(serpent.dump(global.storage[player.name]))
   frame.add{type = "button", caption = {"gui.close"}, name = "upgrade_planner_frame_close", style = mod_gui.button_style}
-  frame.style.visible = true
+  frame.visible = true
   player.opened = frame
 end
 
@@ -1220,7 +1220,7 @@ function import_config(player)
   local flow = frame.add{type = "flow"}
   flow.add{type = "button", caption = {"upgrade-planner.import-button"}, name = "upgrade_planner_import_config_button", style = mod_gui.button_style}
   flow.add{type = "button", caption = {"gui.close"}, name = "upgrade_planner_frame_close", style = mod_gui.button_style}
-  frame.style.visible = true
+  frame.visible = true
   player.opened = frame
 end
 
