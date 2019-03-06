@@ -229,7 +229,7 @@ function gui_open_frame(player)
 
   local button_grid = frame.add{
     type = "table",
-    column_count = 4
+    column_count = 5
   }
   button_grid.add{
     type = "sprite-button",
@@ -243,6 +243,13 @@ function gui_open_frame(player)
     name = "give_upgrade_tool",
     sprite = "item/upgrade-builder",
     tooltip = {"upgrade-planner.config-button-give-upgrade-tool"},
+    style = mod_gui.button_style
+  }
+  button_grid.add{
+    type = "sprite-button",
+    name = "destroy_upgrade_tool",
+    sprite = "utility/remove",
+    tooltip = {"upgrade-planner.config-button-delete-upgrade-tool"},
     style = mod_gui.button_style
   }
   button_grid.add{
@@ -412,7 +419,16 @@ script.on_event(defines.events.on_gui_click, function(event)
   end
   if name == "give_upgrade_tool" then
     player.clean_cursor()
+    player.remove_item({name = "upgrade-builder", count=100000})
     player.cursor_stack.set_stack({name = "upgrade-builder"})
+    return
+  end
+  if name == "destroy_upgrade_tool" then
+    player.remove_item({name = "upgrade-builder", count=100000})
+    if not (player.cursor_stack.valid and player.cursor_stack.valid_for_read) then return end
+    if player.cursor_stack.name == "upgrade-builder" then
+      player.cursor_stack.count=0
+    end
     return
   end
 
@@ -1088,6 +1104,7 @@ end)
 script.on_event(defines.events.on_mod_item_opened, function(event)
   local player = game.players[event.player_index]
   if event.item.name == "upgrade-builder" then
+    player.print("Fire")
     gui_open_frame(player)
   end
 end)
