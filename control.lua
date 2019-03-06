@@ -822,14 +822,14 @@ function on_alt_selected_area(event)
   if not config then return end
   local hashmap = get_hashmap(config)
   local surface = player.surface
-  for k, belt in pairs (event.entities) do
-    if belt.valid then
-      local upgrade = hashmap[belt.name]
+  for k, entity in pairs (event.entities) do
+    if entity.valid then
+      local upgrade = hashmap[entity.name]
       if upgrade and upgrade ~= "" then
-        bot_upgrade(player,belt,upgrade,true, hashmap)
+        entity.order_upgrade({force=entity.force,target=upgrade['entity_to']})
       end
-      if belt.valid and belt.get_module_inventory() then
-        robot_upgrade_modules(belt.get_module_inventory(), hashmap, belt)
+      if entity.valid and entity.get_module_inventory() then
+        robot_upgrade_modules(entity.get_module_inventory(), hashmap, entity)
       end
     end
   end
@@ -873,79 +873,6 @@ function get_recipe(owner)
     recipe = owner.get_recipe() or "iron-gear-wheel"
   end
   return recipe
-end
-
-function bot_upgrade(player, belt, upgrade, bool, hashmap)
-  if not (belt and belt.valid) then return end
-  if not upgrade.entity_to then
-    log("Tried to upgrade when entry had no entity: "..serpent.line(upgrade))
-    return
-  end
-  local surface = player.surface
-  local p = belt.position
-  local d = belt.direction
-  local f = belt.force
-  local p = belt.position
-  local a = {{p.x-0.5,p.y-0.5},{p.x+0.5,p.y+0.5}}
-
-  if belt.to_be_deconstructed(f) then
-    return
-  end
-
-  if belt.type == "underground-belt" then
-    if belt.neighbours and bool then
-      bot_upgrade(player,belt.neighbours, upgrade, false)
-    end
-  end
-  if belt.type == "straight-rail" or belt.type == "curved-rail" then
-    belt.order_deconstruction(f)
-    local new_ghost = surface.create_entity{
-      name = "entity-ghost",
-      inner_name = upgrade.entity_to,
-      position = p,
-      force = f,
-      direction = d,
-      expires = false
-    }
-    return
-  end
-  player.cursor_stack.set_stack{name = "blueprint", count = 1}
-  player.cursor_stack.create_blueprint{surface = surface, force = belt.force,area = a}
-  local old_blueprint = player.cursor_stack.get_blueprint_entities()
-  local blueprint_index = nil
-  for k, entity in pairs (old_blueprint) do
-    if entity.name == belt.name then
-      blueprint_index = k
-      break
-    end
-  end
-  if not blueprint_index then
-    player.print("Upgrade planner bot upgrade blueprint index error - Upgrade unsuccessful: "..belt.name.." -> "..serpent.block(upgrade))
-    player.cursor_stack.set_stack{name = "upgrade-builder", count = 1}
-    return
-  end
-  --game.print(serpent.block(old_blueprint))
-  local blueprint_entity = old_blueprint[blueprint_index]
-  blueprint_entity.name = upgrade.entity_to
-  local new_items = {}
-  if blueprint_entity.items then
-    for item, count in pairs (blueprint_entity.items) do
-      local new = hashmap[item]
-      if new then
-        if new_items[new] then
-          new_items[new] = new_items[new] + count
-        else
-          new_items[new] = count
-        end
-      end
-    end
-  end
-  blueprint_entity.items = new_items
-  player.cursor_stack.set_stack{name = "blueprint", count = 1}
-  player.cursor_stack.set_blueprint_entities({blueprint_entity})
-  belt.order_deconstruction(f)
-  player.cursor_stack.build_blueprint{surface = surface, force = f, position = p}
-  player.cursor_stack.set_stack{name = "upgrade-builder", count = 1}
 end
 
 script.on_configuration_changed(function(data)
