@@ -64,7 +64,7 @@ end
 
 function gui_open_frame(player)
 
-  local flow = player.gui.center
+  local flow = mod_gui.get_frame_flow(player)
 
   local frame = flow.upgrade_planner_config_frame
 
@@ -292,7 +292,7 @@ function gui_save_changes(player)
   if not global.storage[player.name] then
     global.storage[player.name] = {}
   end
-  local gui = player.gui.center.upgrade_planner_config_frame
+  local gui = player.gui.left.mod_gui_frame_flow.upgrade_planner_config_frame
   if not gui then return end
   local drop_down = gui.upgrade_planner_storage_flow.children[1]
   local name = drop_down.get_item(global.storage_index[player.name])
@@ -302,7 +302,7 @@ end
 function gui_set_rule(player, type, index, element)
   local items = game.item_prototypes
   local name = element.elem_value
-  local frame = player.gui.center.upgrade_planner_config_frame
+  local frame = player.gui.left.mod_gui_frame_flow.upgrade_planner_config_frame
   local ruleset_grid = frame["upgrade_planner_ruleset_grid"]
   local storage_name = element.parent.parent.upgrade_planner_storage_flow.children[1].get_item(global.storage_index[player.name])
   local storage = global["config-tmp"][player.name]
@@ -350,7 +350,7 @@ function gui_set_rule(player, type, index, element)
 end
 
 function gui_clear_rule(player, index)
-  local frame = player.gui.center.upgrade_planner_config_frame
+  local frame = player.gui.left.mod_gui_frame_flow.upgrade_planner_config_frame
   if not frame or not global["config-tmp"][player.name] then return end
   local ruleset_grid = frame["upgrade_planner_ruleset_grid"]
   global["config-tmp"][player.name][index] = { from = "", to = "" }
@@ -363,7 +363,7 @@ end
 
 function gui_restore(player, name)
 
-  local frame = player.gui.center.upgrade_planner_config_frame
+  local frame = player.gui.left.mod_gui_frame_flow.upgrade_planner_config_frame
   if not frame then return end
   if not global.storage[player.name] then return end
   local storage = global.storage[player.name][name]
@@ -1146,7 +1146,7 @@ end
 
 function export_config(player)
   player.opened = nil
-  local gui = player.gui.center
+  local gui = player.gui.left.mod_gui_frame_flow
   local frame = gui.add{type = "frame", caption = {"upgrade-planner.export-config"}, name = "upgrade_planner_export_frame", direction = "vertical"}
   local textfield = frame.add{type = "text-box"}
   textfield.word_wrap = true
@@ -1162,7 +1162,7 @@ end
 
 function import_config(player)
   player.opened = nil
-  local gui = player.gui.center
+  local gui = player.gui.left.mod_gui_frame_flow
   local frame = gui.add{type = "frame", caption = {"upgrade-planner.import-config"}, name = "upgrade_planner_export_frame", direction = "vertical"}
   local textfield = frame.add{type = "text-box"}
   textfield.word_wrap = true
