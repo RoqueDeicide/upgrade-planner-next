@@ -1,5 +1,5 @@
 require("mod-gui")
-MAX_CONFIG_SIZE = 16
+MAX_CONFIG_SIZE = 24
 MAX_STORAGE_SIZE = 12
 in_range_check_is_annoying = true
 
@@ -155,11 +155,12 @@ function gui_open_frame(player)
   cancel_button.visible = false
   local ruleset_grid = frame.add{
     type = "table",
-    column_count = 6,
+    column_count = (MAX_CONFIG_SIZE/8 - MAX_CONFIG_SIZE%8)*3,
     name = "upgrade_planner_ruleset_grid",
     style = "slot_table"
   }
 
+  for i = 1, 3 do
   ruleset_grid.add{
     type = "label",
     caption = {"upgrade-planner.config-header-1"}
@@ -172,18 +173,8 @@ function gui_open_frame(player)
     type = "label",
     caption = {"upgrade-planner.config-clear", "    "}
   }
-  ruleset_grid.add{
-    type = "label",
-    caption = {"upgrade-planner.config-header-1"}
-  }
-  ruleset_grid.add{
-    type = "label",
-    caption = {"upgrade-planner.config-header-2"}
-  }
-  ruleset_grid.add{
-    type = "label",
-    caption = {"upgrade-planner.config-clear", ""}
-  }
+  end
+
   local items = game.item_prototypes
   for i = 1, MAX_CONFIG_SIZE do
     local sprite = nil
