@@ -1,5 +1,6 @@
 require("mod-gui")
 local Event = require('__stdlib__/stdlib/event/event')
+local Gui = require('__stdlib__/stdlib/event/gui')
 MAX_CONFIG_SIZE = 24
 MAX_STORAGE_SIZE = 12
 in_range_check_is_annoying = true
@@ -398,10 +399,6 @@ Event.register(defines.events.on_gui_click, function(event)
   local player = game.players[event.player_index]
   --game.print(element.type)
   --game.print(element.name)
-  if name == "upgrade_blueprint" then
-    upgrade_blueprint(player)
-    return
-  end
 
   if name == "upgrade_planner_storage_rename" then
     local children = element.parent.children
@@ -1020,12 +1017,17 @@ function update_blueprint_entities(stack, hashmap)
   return true
 end
 
-function upgrade_blueprint(player)
+function upgrade_blueprint(event)
+  local player = game.players[event.player_index]
   local stack = player.cursor_stack
-  if not (stack.valid and stack.valid_for_read) then return end
+  if not (stack.valid and stack.valid_for_read) then
+    return
+  end
 
   local config = global.config[player.name]
-  if not config then return end
+  if not config then
+    return
+  end
   local hashmap = get_hashmap(config)
 
   if stack.is_blueprint then
@@ -1266,6 +1268,9 @@ function dec(data)
     return string.char(c)
   end))
 end
+
+
+Gui.on_click("upgrade_blueprint", upgrade_blueprint)
 
 
 
