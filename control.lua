@@ -220,27 +220,13 @@ function gui_open_frame(player)
 
   local button_grid = frame.add{
     type = "table",
-    column_count = 6
+    column_count = 5
   }
   button_grid.add{
     type = "sprite-button",
     name = "upgrade_blueprint",
     sprite = "item/blueprint",
     tooltip = {"upgrade-planner.config-button-upgrade-blueprint"},
-    style = mod_gui.button_style
-  }
-  button_grid.add{
-    type = "sprite-button",
-    name = "give_upgrade_tool",
-    sprite = "item/upgrade-builder",
-    tooltip = {"upgrade-planner.config-button-give-upgrade-tool"},
-    style = mod_gui.button_style
-  }
-  button_grid.add{
-    type = "sprite-button",
-    name = "destroy_upgrade_tool",
-    sprite = "utility/remove",
-    tooltip = {"upgrade-planner.config-button-delete-upgrade-tool"},
     style = mod_gui.button_style
   }
   button_grid.add{
@@ -413,20 +399,6 @@ script.on_event(defines.events.on_gui_click, function(event)
   --game.print(element.name)
   if name == "upgrade_blueprint" then
     upgrade_blueprint(player)
-    return
-  end
-  if name == "give_upgrade_tool" then
-    player.clean_cursor()
-    player.remove_item({name = "upgrade-builder", count=100000})
-    player.cursor_stack.set_stack({name = "upgrade-builder"})
-    return
-  end
-  if name == "destroy_upgrade_tool" then
-    player.remove_item({name = "upgrade-builder", count=100000})
-    if not (player.cursor_stack.valid and player.cursor_stack.valid_for_read) then return end
-    if player.cursor_stack.name == "upgrade-builder" then
-      player.cursor_stack.count=0
-    end
     return
   end
 
@@ -1135,14 +1107,41 @@ script.on_event(defines.events.on_mod_item_opened, function(event)
   end
 end)
 
-script.on_event(defines.events.on_lua_shortcut, function(event)
-  if event.prototype_name ~= 'upgrade-builder' then return end
 
-  local player = game.players[event.player_index]
-  player.clean_cursor()
-  player.remove_item({name = "upgrade-builder", count=100000})
-  player.cursor_stack.set_stack({name = "upgrade-builder"})
+script.on_event(defines.events.on_player_main_inventory_changed, function(event)
+  cleanup_upgrade_planner(event)
 end)
+
+script.on_event(defines.events.on_player_trash_inventory_changed, function(event)
+  cleanup_upgrade_planner(event)
+end)
+
+
+function cleanup_upgrade_planner(event)
+  local player = game.players[event.player_index]
+  local is_trash = event.name == defines.events.on_player_trash_inventory_changed
+  local inventory
+
+  if is_trash then
+    inventory = player.get_inventory(defines.inventory.player_trash)
+  elseif is_trash == false then
+    inventory = player.get_main_inventory()
+  else
+    return
+  end
+
+  if game.item_prototypes["upgrade-builder"] then
+    if is_trash then
+      local upgrade_builder = inventory.find_item_stack("upgrade-builder")
+      if upgrade_builder then upgrade_builder.clear() end
+    else
+      local cnt = inventory.get_item_count("upgrade-builder")
+      if cnt > 1 then
+        inventory.remove {name = "upgrade-builder", count = cnt-1}
+      end
+end
+  end
+end
 
 function print_full_gui_name(gui)
   local string = gui.name or "No_name"

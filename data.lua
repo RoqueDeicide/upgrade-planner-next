@@ -7,7 +7,7 @@ data:extend({
     stack_size = 1,
     subgroup = "tool",
     order = "c[automated-construction]-d[upgrade-builder]",
-    flags = {},
+    flags = {'hidden'},
     selection_color = {r = 0.2, g = 0.8, b = 0.2, a = 0.2},
     alt_selection_color = {r = 0.2, g = 0.2, b = 0.8, a = 0.2},
     selection_mode = {"buildable-type"},
@@ -15,13 +15,14 @@ data:extend({
     selection_cursor_box_type = "entity",
     alt_selection_cursor_box_type = "copy",
     can_be_mod_opened = true,
-    show_in_library = true
+    show_in_library = false
   },
   {
     type = 'shortcut',
     name = 'upgrade-builder',
+    item_to_create = 'upgrade-builder',
     order = 'a[alt-mode]-b[copy]',
-    action = 'lua',
+    action = 'create-blueprint-item',
     localised_name = {'shortcut.upgrade-builder'},
     icon = 
     {
