@@ -1,4 +1,5 @@
 require("mod-gui")
+local Event = require('__stdlib__/stdlib/event/event')
 MAX_CONFIG_SIZE = 24
 MAX_STORAGE_SIZE = 12
 in_range_check_is_annoying = true
@@ -389,7 +390,7 @@ function gui_restore(player, name)
 
 end
 
-script.on_event(defines.events.on_gui_click, function(event)
+Event.register(defines.events.on_gui_click, function(event)
 
   local element = event.element
   --print_full_gui_name(element)
@@ -516,7 +517,7 @@ script.on_event(defines.events.on_gui_click, function(event)
 
 end)
 
-script.on_event(defines.events.on_gui_selection_state_changed, function(event)
+Event.register(defines.events.on_gui_selection_state_changed, function(event)
   local element = event.element
   local player = game.players[event.player_index]
   if not string.find(element.name, "upgrade_planner_") then return end
@@ -528,7 +529,7 @@ script.on_event(defines.events.on_gui_selection_state_changed, function(event)
   end
 end)
 
-script.on_event(defines.events.on_gui_elem_changed, function(event)
+Event.register(defines.events.on_gui_elem_changed, function(event)
 
   local element = event.element
   local player = game.players[event.player_index]
@@ -541,18 +542,18 @@ script.on_event(defines.events.on_gui_elem_changed, function(event)
   end
 end)
 
-script.on_init(function()
+Event.register(Event.core_events.init, function()
   global_init()
   for k, player in pairs (game.players) do
     gui_init(player)
   end
 end)
 
-script.on_event(defines.events.on_player_selected_area, function(event)
+Event.register(defines.events.on_player_selected_area, function(event)
   on_selected_area(event)
 end)
 
-script.on_event(defines.events.on_player_alt_selected_area, function(event)
+Event.register(defines.events.on_player_alt_selected_area, function(event)
   on_alt_selected_area(event)
 end)
 
@@ -889,7 +890,7 @@ function handle_upgrade_planner (player)
   end
 end
 
-script.on_configuration_changed(function(data)
+Event.register(Event.core_events.configuration_changed, function(data)
   if not data or not data.mod_changes then
     return
   end
@@ -938,7 +939,7 @@ function verify_all_configs()
   end
 end
 
-script.on_event(defines.events.on_player_joined_game, function(event)
+Event.register(defines.events.on_player_joined_game, function(event)
   local player = game.players[event.player_index]
   gui_init(player)
 end)
@@ -1061,12 +1062,12 @@ function is_exception(from, to)
   return false
 end
 
-script.on_event("upgrade-planner", function(event)
+Event.register("upgrade-planner", function(event)
   local player = game.players[event.player_index]
   gui_open_frame(player)
 end)
 
-script.on_event("upgrade-planner-hide", function(event)
+Event.register("upgrade-planner-hide", function(event)
   local player = game.players[event.player_index]
   local button_flow = mod_gui.get_button_flow(player)
   if button_flow["upgrade_planner_config_button"] then
@@ -1084,7 +1085,7 @@ script.on_event("upgrade-planner-hide", function(event)
   button.visible = true
 end)
 
-script.on_event(defines.events.on_gui_closed, function(event)
+Event.register(defines.events.on_gui_closed, function(event)
   local player = game.players[event.player_index]
   local element = event.element
   if not element then return end
@@ -1099,7 +1100,7 @@ script.on_event(defines.events.on_gui_closed, function(event)
   end
 end)
 
-script.on_event(defines.events.on_mod_item_opened, function(event)
+Event.register(defines.events.on_mod_item_opened, function(event)
   local player = game.players[event.player_index]
   if event.item.name == "upgrade-builder" then
     player.print("Fire")
@@ -1107,14 +1108,10 @@ script.on_event(defines.events.on_mod_item_opened, function(event)
   end
 end)
 
-
-script.on_event(defines.events.on_player_main_inventory_changed, function(event)
-  cleanup_upgrade_planner(event)
-end)
-
-script.on_event(defines.events.on_player_trash_inventory_changed, function(event)
-  cleanup_upgrade_planner(event)
-end)
+--[[Event.register(
+  {defines.events.on_player_trash_inventory_changed, defines.events.on_player_main_inventory_changed},
+  cleanup_upgrade_planner
+)]]--
 
 
 function cleanup_upgrade_planner(event)
@@ -1139,7 +1136,7 @@ function cleanup_upgrade_planner(event)
       if cnt > 1 then
         inventory.remove {name = "upgrade-builder", count = cnt-1}
       end
-end
+    end
   end
 end
 
@@ -1270,3 +1267,17 @@ function dec(data)
   end))
 end
 
+
+
+function dump(o)
+  if type(o) == 'table' then
+     local s = '{ '
+     for k,v in pairs(o) do
+        if type(k) ~= 'number' then k = '"'..k..'"' end
+        s = s .. '['..k..'] = ' .. dump(v) .. ','
+     end
+     return s .. '} '
+  else
+     return tostring(o)
+  end
+end
