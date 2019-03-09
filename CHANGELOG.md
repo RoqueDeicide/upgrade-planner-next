@@ -1,3 +1,9 @@
+## Chagelog
+
+## 1.6.2
+ - Removed old bot functionality and use the new in built Upgrade Planner bot functionality
+ - Added a toolbar shortcut
+ - Fix that there is no way to remove old Upgrade Planners
 
 ## 1.6.1
  - Add thumbnail image
