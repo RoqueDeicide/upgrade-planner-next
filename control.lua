@@ -161,18 +161,18 @@ function gui_open_frame(player)
   }
 
   for i = 1, 3 do
-  ruleset_grid.add{
-    type = "label",
-    caption = {"upgrade-planner.config-header-1"}
-  }
-  ruleset_grid.add{
-    type = "label",
-    caption = {"upgrade-planner.config-header-2"}
-  }
-  ruleset_grid.add{
-    type = "label",
-    caption = {"upgrade-planner.config-clear", "    "}
-  }
+    ruleset_grid.add{
+      type = "label",
+      caption = {"upgrade-planner.config-header-1"}
+    }
+    ruleset_grid.add{
+      type = "label",
+      caption = {"upgrade-planner.config-header-2"}
+    }
+    ruleset_grid.add{
+      type = "label",
+      caption = {"upgrade-planner.config-clear", "    "}
+    }
   end
 
   local items = game.item_prototypes
@@ -220,7 +220,7 @@ function gui_open_frame(player)
 
   local button_grid = frame.add{
     type = "table",
-    column_count = 5
+    column_count = 6
   }
   button_grid.add{
     type = "sprite-button",
@@ -254,6 +254,13 @@ function gui_open_frame(player)
     type = "sprite-button",
     name = "upgrade_planner_export_config",
     sprite = "utility/export_slot",
+    tooltip = {"upgrade-planner.config-button-export-config"},
+    style = mod_gui.button_style
+  }
+  button_grid.add{
+    type = "sprite-button",
+    name = "upgrade_planner_configure_plan",
+    sprite = "item/upgrade-planner",
     tooltip = {"upgrade-planner.config-button-export-config"},
     style = mod_gui.button_style
   }
@@ -508,6 +515,10 @@ script.on_event(defines.events.on_gui_click, function(event)
   end
   if name == "upgrade_planner_export_config" then
     export_config(player)
+    return
+  end
+  if name == "upgrade_planner_configure_plan" then
+    handle_upgrade_planner(player)
     return
   end
   if name == "upgrade_planner_import_config" then
@@ -882,6 +893,30 @@ function get_recipe(owner)
   return recipe
 end
 
+function handle_upgrade_planner (player)
+  local stack = player.cursor_stack
+  if (stack and stack.valid and stack.valid_for_read and stack.is_upgrade_item) then
+    player.print("Importing settings from planner is not yet implemented")
+  else
+    local config = global.config[player.name]
+    if not config then return end
+    local hashmap = get_hashmap(config)
+    player.clean_cursor()
+    stack = player.cursor_stack
+    stack.set_stack{name = "upgrade-planner"}
+    local idx = 1
+    for item, configmap in pairs(hashmap) do
+      if configmap.item_from ~= nil then
+        stack.set_mapper(idx, "from", {type = "entity", name = configmap.item_from})
+      end
+      if configmap.item_from ~= nil then
+        stack.set_mapper(idx,"to",{type="entity",name=configmap.item_to})
+      end
+      idx = idx +1
+    end
+  end
+end
+
 script.on_configuration_changed(function(data)
   if not data or not data.mod_changes then
     return
@@ -1235,3 +1270,4 @@ function dec(data)
     return string.char(c)
   end))
 end
+
