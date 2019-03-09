@@ -16,6 +16,37 @@ data:extend({
     alt_selection_cursor_box_type = "copy",
     can_be_mod_opened = true,
     show_in_library = true
+  },
+  {
+    type = 'shortcut',
+    name = 'upgrade-builder',
+    order = 'a[alt-mode]-b[copy]',
+    action = 'lua',
+    localised_name = {'shortcut.upgrade-builder'},
+    icon = 
+    {
+      filename = "__upgrade-planner-next__/builder.png",
+      priority = 'extra-high-no-scale',
+      size = 32,
+      scale = 1,
+      flags = {'icon'}
+    },
+    small_icon =
+    {
+      filename = "__upgrade-planner-next__/builder.png",
+      priority = 'extra-high-no-scale',
+      size = 24,
+      scale = 1,
+      flags = {'icon'}
+    },
+    disabled_small_icon =
+    {
+      filename = "__upgrade-planner-next__/builder.png",
+      priority = 'extra-high-no-scale',
+      size = 24,
+      scale = 1,
+      flags = {'icon'}
+    }
   }
 })
 

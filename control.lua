@@ -1109,6 +1109,15 @@ script.on_event(defines.events.on_mod_item_opened, function(event)
   end
 end)
 
+script.on_event(defines.events.on_lua_shortcut, function(event)
+  if event.prototype_name ~= 'upgrade-builder' then return end
+
+  local player = game.players[event.player_index]
+  player.clean_cursor()
+  player.remove_item({name = "upgrade-builder", count=100000})
+  player.cursor_stack.set_stack({name = "upgrade-builder"})
+end)
+
 function print_full_gui_name(gui)
   local string = gui.name or "No_name"
   while gui.parent do
