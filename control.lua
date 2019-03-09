@@ -391,39 +391,37 @@ function gui_restore(player, name)
 
 end
 
-Event.register(defines.events.on_gui_click, function(event)
-
-  local element = event.element
-  --print_full_gui_name(element)
-  local name = element.name
-  local player = game.players[event.player_index]
-  --game.print(element.type)
-  --game.print(element.name)
-
-  if name == "upgrade_planner_storage_rename" then
-    local children = element.parent.children
-    for k, child in pairs (children) do
+Gui.on_click(
+  "upgrade_planner_storage_rename",
+  function(event)
+    local children = event.element.parent.children
+    for k, child in pairs(children) do
       child.visible = true
     end
     children[4].text = children[1].get_item(children[1].selected_index)
     if children[4].text == "New storage" then
       children[4].text = ""
     end
-    return
   end
+)
 
-  if name == "upgrade_planner_storage_cancel" then
-    local children = element.parent.children
+Gui.on_click(
+  "upgrade_planner_storage_cancel",
+  function(event)
+    local children = event.element.parent.children
     for k = 4, 6 do
       children[k].visible = false
     end
     children[4].text = children[1].get_item(children[1].selected_index)
-    return
   end
+)
 
-  if name == "upgrade_planner_storage_confirm" then
+Gui.on_click(
+  "upgrade_planner_storage_confirm",
+  function(event)
+    local player = game.players[event.player_index]
     local index = global.storage_index[player.name]
-    local children = element.parent.children
+    local children = event.element.parent.children
     local new_name = children[4].text
     local length = string.len(new_name)
     if length < 1 then
@@ -460,8 +458,11 @@ Event.register(defines.events.on_gui_click, function(event)
     global.storage_index[player.name] = index
     return
   end
+)
 
-  if name == "upgrade_planner_storage_delete" then
+Gui.on_click(
+  "upgrade_planner_storage_delete",
+  function(event)
     local children = element.parent.children
     local dropdown = children[1]
     local index = dropdown.selected_index
@@ -479,6 +480,17 @@ Event.register(defines.events.on_gui_click, function(event)
     global.storage_index[player.name] = index
     return
   end
+)
+
+Event.register(defines.events.on_gui_click, function(event)
+
+  local element = event.element
+  --print_full_gui_name(element)
+  local name = element.name
+  local player = game.players[event.player_index]
+  --game.print(element.type)
+  --game.print(element.name)
+
   if name == "upgrade_planner_config_button" then
     gui_open_frame(player)
     return
@@ -1110,10 +1122,7 @@ Event.register(defines.events.on_mod_item_opened, function(event)
   end
 end)
 
---[[Event.register(
-  {defines.events.on_player_trash_inventory_changed, defines.events.on_player_main_inventory_changed},
-  cleanup_upgrade_planner
-)]]--
+
 
 
 function cleanup_upgrade_planner(event)
@@ -1269,6 +1278,10 @@ function dec(data)
   end))
 end
 
+Event.register(
+  {defines.events.on_player_trash_inventory_changed, defines.events.on_player_main_inventory_changed},
+  cleanup_upgrade_planner
+)
 
 Gui.on_click("upgrade_blueprint", upgrade_blueprint)
 
