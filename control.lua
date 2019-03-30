@@ -64,6 +64,11 @@ function gui_init(player)
   end
 end
 
+function gui_open_frame_event(event)
+  local player = game.players[event.player_index]
+  gui_open_frame(player)
+end
+
 function gui_open_frame(player)
 
   local flow = mod_gui.get_frame_flow(player)
@@ -75,8 +80,6 @@ function gui_open_frame(player)
     global["config-tmp"][player.name] = nil
     return
   end
-
-
 
   global.config[player.name] = global.config[player.name] or {}
   global["config-tmp"][player.name] = {}
@@ -482,6 +485,8 @@ Gui.on_click(
   end
 )
 
+Gui.on_click("upgrade_planner_config_button", gui_open_frame_event)
+
 Event.register(defines.events.on_gui_click, function(event)
 
   local element = event.element
@@ -491,10 +496,6 @@ Event.register(defines.events.on_gui_click, function(event)
   --game.print(element.type)
   --game.print(element.name)
 
-  if name == "upgrade_planner_config_button" then
-    gui_open_frame(player)
-    return
-  end
   if name == "upgrade_planner_export_config" then
     export_config(player)
     return
@@ -899,13 +900,13 @@ function handle_upgrade_planner (player)
   end
 end
 
-Event.register(Event.core_events.configuration_changed, function(data)
-  if not data or not data.mod_changes then
+Event.register(Event.core_events.configuration_changed, function(event)
+  if not event or not event.mod_changes then
     return
   end
   verify_all_configs()
   nuke_all_guis()
-  if data.mod_changes["upgrade-planner"] then
+  if event.mod_changes["upgrade-planner"] then
     if not global.storage_index then
       global.storage_index = {}
     end
@@ -916,8 +917,8 @@ Event.register(Event.core_events.configuration_changed, function(data)
       if not global.storage_index[player.name] then
         global.storage[player.name] = global.storage[player.name] or {}
         global.storage[player.name]["New storage"] = global.config[player.name]
-        gui_open_frame(player)
-        gui_open_frame(player)
+        gui_open_frame_event(event)
+        gui_open_frame_event(event)
       end
     end
   end
@@ -1076,11 +1077,6 @@ function is_exception(from, to)
   return false
 end
 
-Event.register("upgrade-planner", function(event)
-  local player = game.players[event.player_index]
-  gui_open_frame(player)
-end)
-
 Event.register("upgrade-planner-hide", function(event)
   local player = game.players[event.player_index]
   local button_flow = mod_gui.get_button_flow(player)
@@ -1115,15 +1111,10 @@ Event.register(defines.events.on_gui_closed, function(event)
 end)
 
 Event.register(defines.events.on_mod_item_opened, function(event)
-  local player = game.players[event.player_index]
   if event.item.name == "upgrade-builder" then
-    player.print("Fire")
-    gui_open_frame(player)
+    gui_open_frame_event(event)
   end
 end)
-
-
-
 
 function cleanup_upgrade_planner(event)
   local player = game.players[event.player_index]
@@ -1278,6 +1269,7 @@ function dec(data)
   end))
 end
 
+Event.register("upgrade-planner", gui_open_frame_event)
 Event.register(
   {defines.events.on_player_trash_inventory_changed, defines.events.on_player_main_inventory_changed},
   cleanup_upgrade_planner
