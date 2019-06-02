@@ -281,27 +281,7 @@ Gui.on_click(
 
 Gui.on_click("upgrade_planner_config_button", UPGui.open_frame_event)
 
-Gui.on_click("upgrade_planner_frame_close", gui_close_frame)
-
-Event.register(defines.events.on_gui_click, function(event)
-
-  local element = event.element
-  --print_full_gui_name(element)
-  local name = element.name
-  local player = game.players[event.player_index]
-  --game.print(element.type)
-  --game.print(element.name)
-
-  if name == "upgrade_planner_configure_plan" then
-    handle_upgrade_planner(player)
-    return
-  end
-  if name == "upgrade_planner_import_config_button" then
-    import_config_action(player)
-    return
-  end
-
-end)
+Gui.on_click("upgrade_planner_frame_close", UPGui.close_frame)
 
 Event.register(defines.events.on_gui_selection_state_changed, function(event)
   local element = event.element
@@ -652,7 +632,8 @@ function get_recipe(owner)
   return recipe
 end
 
-function handle_upgrade_planner (player)
+function handle_upgrade_planner (event)
+  local player = game.players(event.player_index)
   local stack = player.cursor_stack
   if (stack and stack.valid and stack.valid_for_read and stack.is_upgrade_item) then
     local config = {}
@@ -690,6 +671,8 @@ function handle_upgrade_planner (player)
     end
   end
 end
+
+Gui.on_click("upgrade_planner_configure_plan", handle_upgrade_planner)
 
 Event.register(Event.core_events.configuration_changed, function(event)
   if not event or not event.mod_changes then
@@ -951,7 +934,9 @@ Gui.on_click("upgrade_planner_export_config", function (event)
   UPGui.import_export_config(event,false)
 end)
 
-function import_config_action(player)
+function import_config_action(event)
+  local player = game.players[event.player_index]
+
   if not player.opened then return end
   local frame = player.opened
   if not (frame.name and frame.name == "upgrade_planner_export_frame") then return end
@@ -985,6 +970,8 @@ function import_config_action(player)
     player.print({"upgrade-planner.import-failed"})
   end
 end
+
+Gui.on_click("upgrade_planner_import_config_button", import_config_action)
 
 -- character table string
 local b='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'

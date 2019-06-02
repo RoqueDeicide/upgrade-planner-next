@@ -267,7 +267,7 @@ end
 
 upgrade_planner_gui.open_frame = open_frame
 
-function gui_close_frame(event)
+upgrade_planner_gui.close_frame = function(event)
   local player = game.players[event.player_index]
   local element = event.element
   while element.type ~= "frame" do
