@@ -258,6 +258,8 @@ Gui.on_click(
 Gui.on_click(
   "upgrade_planner_storage_delete",
   function(event)
+    local player = game.players[event.player_index]
+    local element = event.element
     local children = element.parent.children
     local dropdown = children[1]
     local index = dropdown.selected_index
