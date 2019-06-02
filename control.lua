@@ -880,7 +880,7 @@ function cleanup_upgrade_planner(event)
   local inventory
 
   if is_trash then
-    inventory = player.get_inventory(defines.inventory.player_trash)
+    inventory = player.get_inventory(defines.inventory.character_trash)
   elseif is_trash == false then
     inventory = player.get_main_inventory()
   else
