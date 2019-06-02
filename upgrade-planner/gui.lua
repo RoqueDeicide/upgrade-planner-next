@@ -1,4 +1,7 @@
+local UPconvert = require('upgrade-planner/converter')
+
 local upgrade_planner_gui = {}
+
 
 upgrade_planner_gui.init = function(player)
   local flow = mod_gui.get_button_flow(player)
@@ -310,7 +313,7 @@ upgrade_planner_gui.import_export_config = function(event, import)
   textfield.style.minimal_height = 200
   textfield.style.maximal_height = 500
   if not import then
-    textfield.text = enc(serpent.dump(global.storage[player.name]))
+    textfield.text = UPconvert.enc(serpent.dump(global.storage[player.name]))
   end
   local flow = frame.add {type = "flow"}
   if import then
