@@ -662,7 +662,22 @@ end
 function handle_upgrade_planner (player)
   local stack = player.cursor_stack
   if (stack and stack.valid and stack.valid_for_read and stack.is_upgrade_item) then
-    player.print("Importing settings from planner is not yet implemented")
+    local config = {}
+    for i = 1,MAX_STORAGE_SIZE,1 do
+      config[i] = { from = stack.get_mapper(i,"from").name, to = stack.get_mapper(i,"to").name }
+      game.print(i)
+      game.print(stack.get_mapper(i,"from").name)
+      game.print(stack.get_mapper(i,"to").name)
+    end
+    global.storage[player.name]["Imported storage"] = config
+    player.print({"upgrade-planner.import-sucessful"})
+    local count = 0
+    for k, storage in pairs (global.storage[player.name]) do
+      count = count + 1
+    end
+    global.storage_index[player.name] = count
+    UPGui.open_frame(player)
+    UPGui.open_frame(player)
   else
     local config = global.config[player.name]
     if not config then return end
