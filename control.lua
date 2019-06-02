@@ -633,7 +633,7 @@ function get_recipe(owner)
 end
 
 function handle_upgrade_planner (event)
-  local player = game.players(event.player_index)
+  local player = game.players[event.player_index]
   local stack = player.cursor_stack
   if (stack and stack.valid and stack.valid_for_read and stack.is_upgrade_item) then
     local config = {}
