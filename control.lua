@@ -255,8 +255,28 @@ function gui_open_frame(player)
     tooltip = {"upgrade-planner.config-button-export-config"},
     style = mod_gui.button_style
   }
+  button_grid.add{type = "button", caption = {"gui.close"}, name = "upgrade_planner_frame_close", style = mod_gui.button_style}
   gui_restore(player, storage_to_restore)
-  player.opened = frame
+end
+
+function gui_close_frame (event)
+  local player = game.players[event.player_index]
+  local element = event.element
+  while element.type ~= "frame" do 
+    element = element.parent
+  end
+
+  if element.name == "upgrade_planner_config_frame" then
+    local ieframe = player.gui.left.mod_gui_frame_flow.upgrade_planner_export_frame
+    if ieframe then
+      ieframe.destroy()
+    end
+  else
+    gui_open_frame(player)
+  end
+  
+  element.destroy()
+
 end
 
 function gui_save_changes(player)
@@ -487,6 +507,8 @@ Gui.on_click(
 
 Gui.on_click("upgrade_planner_config_button", gui_open_frame_event)
 
+Gui.on_click("upgrade_planner_frame_close", gui_close_frame)
+
 Event.register(defines.events.on_gui_click, function(event)
 
   local element = event.element
@@ -506,11 +528,6 @@ Event.register(defines.events.on_gui_click, function(event)
   end
   if name == "upgrade_planner_import_config" then
     import_config(player)
-    return
-  end
-  if name == "upgrade_planner_frame_close" then
-    player.opened.destroy()
-    gui_open_frame(player)
     return
   end
   if name == "upgrade_planner_import_config_button" then
@@ -1182,6 +1199,7 @@ function export_config(player)
   frame.add{type = "button", caption = {"gui.close"}, name = "upgrade_planner_frame_close", style = mod_gui.button_style}
   frame.visible = true
   player.opened = frame
+  gui_open_frame(player)
 end
 
 function import_config(player)
@@ -1199,6 +1217,7 @@ function import_config(player)
   flow.add{type = "button", caption = {"gui.close"}, name = "upgrade_planner_frame_close", style = mod_gui.button_style}
   frame.visible = true
   player.opened = frame
+  gui_open_frame(player)
 end
 
 function import_config_action(player)
