@@ -926,11 +926,11 @@ function print_full_gui_name(gui)
   game.print(string)
 end
 
-Gui.on_click("upgrade_planner_import_config", function (event)
+Gui.on_click("upgrade_planner_import_config_open", function (event)
   UPGui.import_export_config(event,true)
 end)
 
-Gui.on_click("upgrade_planner_export_config", function (event)
+Gui.on_click("upgrade_planner_export_config_open", function (event)
   UPGui.import_export_config(event,false)
 end)
 

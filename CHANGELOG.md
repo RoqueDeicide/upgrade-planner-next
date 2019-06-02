@@ -1,5 +1,9 @@
 ## Changelog
 
+## 1.6.4
+
+- Fix import window not accepting input
+
 ## 1.6.3
 
 - Add Import from/Export to the official Upgrade Planner
