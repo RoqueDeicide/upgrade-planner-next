@@ -158,12 +158,12 @@ local function open_frame(player)
   local ruleset_grid =
     frame.add {
     type = "table",
-    column_count = (MAX_CONFIG_SIZE / 8 - MAX_CONFIG_SIZE % 8) * 3,
+    column_count = (MAX_CONFIG_SIZE / 6 - MAX_CONFIG_SIZE % 6) * 3,
     name = "upgrade_planner_ruleset_grid",
     style = "slot_table"
   }
 
-  for i = 1, 3 do
+  for i = 1, MAX_CONFIG_SIZE / 6 do
     ruleset_grid.add {
       type = "label",
       caption = {"upgrade-planner.config-header-1"}
@@ -173,8 +173,7 @@ local function open_frame(player)
       caption = {"upgrade-planner.config-header-2"}
     }
     ruleset_grid.add {
-      type = "label",
-      caption = {"upgrade-planner.config-clear", "    "}
+      type = "label"
     }
   end
 
@@ -215,11 +214,7 @@ local function open_frame(player)
     }
     elem.elem_value = to
     ruleset_grid.add {
-      type = "sprite-button",
-      name = "upgrade_planner_clear_" .. i,
-      style = "red_slot_button",
-      sprite = "utility/remove",
-      tooltip = {"upgrade-planner.config-clear", ""}
+      type = "label"
     }
   end
 

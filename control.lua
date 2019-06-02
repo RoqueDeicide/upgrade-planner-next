@@ -300,13 +300,6 @@ Event.register(defines.events.on_gui_click, function(event)
     import_config_action(player)
     return
   end
-  local type, index = string.match(name, "upgrade_planner_(%a+)_(%d+)")
-  if type and index then
-    if type == "clear" then
-      gui_clear_rule(player, tonumber(index))
-      return
-    end
-  end
 
 end)
 
