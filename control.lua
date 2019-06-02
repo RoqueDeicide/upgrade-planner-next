@@ -518,16 +518,8 @@ Event.register(defines.events.on_gui_click, function(event)
   --game.print(element.type)
   --game.print(element.name)
 
-  if name == "upgrade_planner_export_config" then
-    export_config(player)
-    return
-  end
   if name == "upgrade_planner_configure_plan" then
     handle_upgrade_planner(player)
-    return
-  end
-  if name == "upgrade_planner_import_config" then
-    import_config(player)
     return
   end
   if name == "upgrade_planner_import_config_button" then
@@ -1185,40 +1177,58 @@ function nuke_all_guis()
   end
 end
 
-function export_config(player)
-  player.opened = nil
-  local gui = player.gui.left.mod_gui_frame_flow
-  local frame = gui.add{type = "frame", caption = {"upgrade-planner.export-config"}, name = "upgrade_planner_export_frame", direction = "vertical"}
-  local textfield = frame.add{type = "text-box"}
-  textfield.word_wrap = true
-  textfield.read_only = true
-  textfield.style.minimal_width = 500
-  textfield.style.minimal_height = 200
-  textfield.style.maximal_height = 500
-  textfield.text = enc(serpent.dump(global.storage[player.name]))
-  frame.add{type = "button", caption = {"gui.close"}, name = "upgrade_planner_frame_close", style = mod_gui.button_style}
-  frame.visible = true
-  player.opened = frame
-  gui_open_frame(player)
-end
+function import_export_config(event, import)
+  local player = game.players[event.player_index]
+  local caption = {"upgrade-planner.export-config"}
 
-function import_config(player)
+  if import then
+    caption = {"upgrade-planner.import-config"}
+  end
+  
   player.opened = nil
   local gui = player.gui.left.mod_gui_frame_flow
-  local frame = gui.add{type = "frame", caption = {"upgrade-planner.import-config"}, name = "upgrade_planner_export_frame", direction = "vertical"}
+  local frame = gui.add{
+    type = "frame",
+    caption = caption,
+    name = "upgrade_planner_export_frame",
+    direction = "vertical"
+  }
   local textfield = frame.add{type = "text-box"}
   textfield.word_wrap = true
-  textfield.read_only = false
+  textfield.read_only = not import
   textfield.style.minimal_width = 500
   textfield.style.minimal_height = 200
   textfield.style.maximal_height = 500
+  if not import then
+    textfield.text = enc(serpent.dump(global.storage[player.name]))
+  end
   local flow = frame.add{type = "flow"}
-  flow.add{type = "button", caption = {"upgrade-planner.import-button"}, name = "upgrade_planner_import_config_button", style = mod_gui.button_style}
-  flow.add{type = "button", caption = {"gui.close"}, name = "upgrade_planner_frame_close", style = mod_gui.button_style}
+  if import then
+    flow.add{
+      type = "button",
+      caption = {"upgrade-planner.import-button"},
+      name = "upgrade_planner_import_config_button",
+      style = mod_gui.button_style
+    }
+  end
+  flow.add{
+    type = "button",
+    caption = {"gui.close"},
+    name = "upgrade_planner_frame_close",
+    style = mod_gui.button_style
+  }
   frame.visible = true
   player.opened = frame
   gui_open_frame(player)
 end
+Gui.on_click("upgrade_planner_import_config", function (event)
+  import_export_config(event,true)
+end)
+
+Gui.on_click("upgrade_planner_export_config", function (event)
+  import_export_config(event,false)
+
+end)
 
 function import_config_action(player)
   if not player.opened then return end
