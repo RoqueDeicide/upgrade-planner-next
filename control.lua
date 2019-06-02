@@ -1,7 +1,7 @@
 require("mod-gui")
 local Event = require('__stdlib__/stdlib/event/event')
 local Gui = require('__stdlib__/stdlib/event/gui')
-local UPGui = require 'upgrade-planner/gui'
+local UPGui = require('upgrade-planner/gui')
 MAX_CONFIG_SIZE = 24
 MAX_STORAGE_SIZE = 12
 in_range_check_is_annoying = true
