@@ -664,10 +664,10 @@ function handle_upgrade_planner (player)
   if (stack and stack.valid and stack.valid_for_read and stack.is_upgrade_item) then
     local config = {}
     for i = 1,MAX_STORAGE_SIZE,1 do
-      config[i] = { from = stack.get_mapper(i,"from").name, to = stack.get_mapper(i,"to").name }
-      game.print(i)
-      game.print(stack.get_mapper(i,"from").name)
-      game.print(stack.get_mapper(i,"to").name)
+      local from = stack.get_mapper(i,"from").name or ""
+      local to = stack.get_mapper(i,"to").name or ""
+
+      config[i] = { from = from, to = to}
     end
     global.storage[player.name]["Imported storage"] = config
     player.print({"upgrade-planner.import-sucessful"})
