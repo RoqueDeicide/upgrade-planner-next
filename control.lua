@@ -1,5 +1,8 @@
 require("mod-gui")
-MAX_CONFIG_SIZE = 16
+local Event = require('__stdlib__/stdlib/event/event')
+local Gui = require('__stdlib__/stdlib/event/gui')
+local UPGui = require('upgrade-planner/gui')
+MAX_CONFIG_SIZE = 24
 MAX_STORAGE_SIZE = 12
 in_range_check_is_annoying = true
 
@@ -47,228 +50,6 @@ function get_config_item(player, index, type)
 
 end
 
-function gui_init(player)
-  local flow = mod_gui.get_button_flow(player)
-  if not flow.upgrade_planner_config_button then
-    local button = flow.add
-    {
-      type = "sprite-button",
-      name = "upgrade_planner_config_button",
-      style = mod_gui.button_style,
-      sprite = "item/upgrade-builder",
-      tooltip = {"upgrade-planner.button-tooltip"}
-    }
-    button.visible = true
-  end
-end
-
-function gui_open_frame(player)
-
-  local flow = player.gui.center
-
-  local frame = flow.upgrade_planner_config_frame
-
-  if frame then
-    frame.destroy()
-    global["config-tmp"][player.name] = nil
-    return
-  end
-
-
-
-  global.config[player.name] = global.config[player.name] or {}
-  global["config-tmp"][player.name] = {}
-  local i = 0
-  for i = 1, MAX_CONFIG_SIZE do
-    if i > #global.config[player.name] then
-      global["config-tmp"][player.name][i] = { from = "", to = "" }
-    else
-      global["config-tmp"][player.name][i] = {
-        from = global.config[player.name][i].from,
-        to = global.config[player.name][i].to
-      }
-    end
-  end
-
-  -- Now we can build the GUI.
-  frame = flow.add{
-    type = "frame",
-    caption = {"upgrade-planner.config-frame-title"},
-    name = "upgrade_planner_config_frame",
-    direction = "vertical"
-  }
-  if not global.storage_index then global.storage_index = {} end
-  if not global.storage_index[player.name] then
-    global.storage_index[player.name] = 1
-  end
-  local storage_flow = frame.add{type = "table", name = "upgrade_planner_storage_flow", column_count = 3}
-  --storage_flow.style.horizontal_spacing = 2
-  local drop_down = storage_flow.add{type = "drop-down", name = "upgrade_planner_drop_down"}
-  --drop_down.style.minimal_height = 50
-  drop_down.style.minimal_width = 164
-  drop_down.style.maximal_width = 0
-  if not global.storage then
-    global.storage = {}
-  end
-  if not global.storage[player.name] then
-    global.storage[player.name] = {}
-  end
-  for key, _ in pairs(global.storage[player.name]) do
-    drop_down.add_item(key)
-  end
-  if not global.storage[player.name]["New storage"] then
-    drop_down.add_item("New storage")
-  end
-  local items = drop_down.items
-  local index = math.min(global.storage_index[player.name], #items)
-  index = math.max(index, 1)
-  drop_down.selected_index = index
-  global.storage_index[player.name] = index
-  local storage_to_restore = drop_down.get_item(drop_down.selected_index)
-  local rename_button = storage_flow.add{type="sprite-button", name = "upgrade_planner_storage_rename", sprite = "utility/rename_icon_normal", tooltip = {"upgrade-planner.rename-button-tooltip"}}
-  rename_button.style = "slot_button"
-  rename_button.style.maximal_width = 24
-  rename_button.style.minimal_width = 24
-  rename_button.style.maximal_height = 24
-  rename_button.style.minimal_height = 24
-  local remove_button = storage_flow.add{type="sprite-button", name = "upgrade_planner_storage_delete", sprite = "utility/remove", tooltip = {"upgrade-planner.delete-storage-button-tooltip"} }
-  remove_button.style = "red_slot_button"
-  remove_button.style.maximal_width = 24
-  remove_button.style.minimal_width = 24
-  remove_button.style.maximal_height = 24
-  remove_button.style.minimal_height = 24
-  local rename_field = storage_flow.add{type = "textfield", name = "upgrade_planner_storage_rename_textfield", text = drop_down.get_item(drop_down.selected_index)}
-  rename_field.visible = false
-  local confirm_button = storage_flow.add{type="sprite-button", name = "upgrade_planner_storage_confirm", sprite = "utility/confirm_slot", tooltip = {"upgrade-planner.confirm-storage-name"} }
-  confirm_button.style = "green_slot_button"
-  confirm_button.style.maximal_width = 24
-  confirm_button.style.minimal_width = 24
-  confirm_button.style.maximal_height = 24
-  confirm_button.style.minimal_height = 24
-  confirm_button.visible = false
-  local cancel_button = storage_flow.add{type="sprite-button", name = "upgrade_planner_storage_cancel", sprite = "utility/set_bar_slot", tooltip = {"upgrade-planner.cancel-storage-name"} }
-  cancel_button.style = "red_slot_button"
-  cancel_button.style.maximal_width = 24
-  cancel_button.style.minimal_width = 24
-  cancel_button.style.maximal_height = 24
-  cancel_button.style.minimal_height = 24
-  cancel_button.visible = false
-  local ruleset_grid = frame.add{
-    type = "table",
-    column_count = 6,
-    name = "upgrade_planner_ruleset_grid",
-    style = "slot_table"
-  }
-
-  ruleset_grid.add{
-    type = "label",
-    caption = {"upgrade-planner.config-header-1"}
-  }
-  ruleset_grid.add{
-    type = "label",
-    caption = {"upgrade-planner.config-header-2"}
-  }
-  ruleset_grid.add{
-    type = "label",
-    caption = {"upgrade-planner.config-clear", "    "}
-  }
-  ruleset_grid.add{
-    type = "label",
-    caption = {"upgrade-planner.config-header-1"}
-  }
-  ruleset_grid.add{
-    type = "label",
-    caption = {"upgrade-planner.config-header-2"}
-  }
-  ruleset_grid.add{
-    type = "label",
-    caption = {"upgrade-planner.config-clear", ""}
-  }
-  local items = game.item_prototypes
-  for i = 1, MAX_CONFIG_SIZE do
-    local sprite = nil
-    local tooltip = nil
-    local from = get_config_item(player, i, "from")
-    if from then
-      --sprite = "item/"..get_config_item(player, i, "from")
-      tooltip = items[from].localised_name
-    end
-    local elem = ruleset_grid.add{
-      type = "choose-elem-button",
-      name = "upgrade_planner_from_" .. i,
-      style = "slot_button",
-      --sprite = sprite,
-      elem_type = "item",
-      tooltip = tooltip
-    }
-    elem.elem_value = from
-    local sprite = nil
-    local tooltip = nil
-    local to = get_config_item(player, i, "to")
-    if to then
-      --sprite = "item/"..get_config_item(player, i, "to")
-      tooltip = items[to].localised_name
-    end
-    local elem = ruleset_grid.add{
-      type = "choose-elem-button",
-      name = "upgrade_planner_to_" .. i,
-      --style = "slot_button",
-      --sprite = sprite,
-      elem_type = "item",
-      tooltip = tooltip
-    }
-    elem.elem_value = to
-    ruleset_grid.add{
-      type = "sprite-button",
-      name = "upgrade_planner_clear_" .. i,
-      style = "red_slot_button",
-      sprite = "utility/remove",
-      tooltip = {"upgrade-planner.config-clear", ""}
-    }
-  end
-
-  local button_grid = frame.add{
-    type = "table",
-    column_count = 5
-  }
-  button_grid.add{
-    type = "sprite-button",
-    name = "upgrade_blueprint",
-    sprite = "item/blueprint",
-    tooltip = {"upgrade-planner.config-button-upgrade-blueprint"},
-    style = mod_gui.button_style
-  }
-  button_grid.add{
-    type = "sprite-button",
-    name = "give_upgrade_tool",
-    sprite = "item/upgrade-builder",
-    tooltip = {"upgrade-planner.config-button-give-upgrade-tool"},
-    style = mod_gui.button_style
-  }
-  button_grid.add{
-    type = "sprite-button",
-    name = "destroy_upgrade_tool",
-    sprite = "utility/remove",
-    tooltip = {"upgrade-planner.config-button-delete-upgrade-tool"},
-    style = mod_gui.button_style
-  }
-  button_grid.add{
-    type = "sprite-button",
-    name = "upgrade_planner_import_config",
-    sprite = "utility/import_slot",
-    tooltip = {"upgrade-planner.config-button-import-config"},
-    style = mod_gui.button_style
-  }
-  button_grid.add{
-    type = "sprite-button",
-    name = "upgrade_planner_export_config",
-    sprite = "utility/export_slot",
-    tooltip = {"upgrade-planner.config-button-export-config"},
-    style = mod_gui.button_style
-  }
-  gui_restore(player, storage_to_restore)
-  player.opened = frame
-end
 
 function gui_save_changes(player)
 
@@ -292,7 +73,7 @@ function gui_save_changes(player)
   if not global.storage[player.name] then
     global.storage[player.name] = {}
   end
-  local gui = player.gui.center.upgrade_planner_config_frame
+  local gui = player.gui.left.mod_gui_frame_flow.upgrade_planner_config_frame
   if not gui then return end
   local drop_down = gui.upgrade_planner_storage_flow.children[1]
   local name = drop_down.get_item(global.storage_index[player.name])
@@ -302,7 +83,7 @@ end
 function gui_set_rule(player, type, index, element)
   local items = game.item_prototypes
   local name = element.elem_value
-  local frame = player.gui.center.upgrade_planner_config_frame
+  local frame = player.gui.left.mod_gui_frame_flow.upgrade_planner_config_frame
   local ruleset_grid = frame["upgrade_planner_ruleset_grid"]
   local storage_name = element.parent.parent.upgrade_planner_storage_flow.children[1].get_item(global.storage_index[player.name])
   local storage = global["config-tmp"][player.name]
@@ -350,7 +131,7 @@ function gui_set_rule(player, type, index, element)
 end
 
 function gui_clear_rule(player, index)
-  local frame = player.gui.center.upgrade_planner_config_frame
+  local frame = player.gui.left.mod_gui_frame_flow.upgrade_planner_config_frame
   if not frame or not global["config-tmp"][player.name] then return end
   local ruleset_grid = frame["upgrade_planner_ruleset_grid"]
   global["config-tmp"][player.name][index] = { from = "", to = "" }
@@ -363,7 +144,7 @@ end
 
 function gui_restore(player, name)
 
-  local frame = player.gui.center.upgrade_planner_config_frame
+  local frame = player.gui.left.mod_gui_frame_flow.upgrade_planner_config_frame
   if not frame then return end
   if not global.storage[player.name] then return end
   local storage = global.storage[player.name][name]
@@ -405,57 +186,37 @@ function gui_restore(player, name)
 
 end
 
-script.on_event(defines.events.on_gui_click, function(event)
-
-  local element = event.element
-  --print_full_gui_name(element)
-  local name = element.name
-  local player = game.players[event.player_index]
-  --game.print(element.type)
-  --game.print(element.name)
-  if name == "upgrade_blueprint" then
-    upgrade_blueprint(player)
-    return
-  end
-  if name == "give_upgrade_tool" then
-    player.clean_cursor()
-    player.remove_item({name = "upgrade-builder", count=100000})
-    player.cursor_stack.set_stack({name = "upgrade-builder"})
-    return
-  end
-  if name == "destroy_upgrade_tool" then
-    player.remove_item({name = "upgrade-builder", count=100000})
-    if not (player.cursor_stack.valid and player.cursor_stack.valid_for_read) then return end
-    if player.cursor_stack.name == "upgrade-builder" then
-      player.cursor_stack.count=0
-    end
-    return
-  end
-
-  if name == "upgrade_planner_storage_rename" then
-    local children = element.parent.children
-    for k, child in pairs (children) do
+Gui.on_click(
+  "upgrade_planner_storage_rename",
+  function(event)
+    local children = event.element.parent.children
+    for k, child in pairs(children) do
       child.visible = true
     end
     children[4].text = children[1].get_item(children[1].selected_index)
     if children[4].text == "New storage" then
       children[4].text = ""
     end
-    return
   end
+)
 
-  if name == "upgrade_planner_storage_cancel" then
-    local children = element.parent.children
+Gui.on_click(
+  "upgrade_planner_storage_cancel",
+  function(event)
+    local children = event.element.parent.children
     for k = 4, 6 do
       children[k].visible = false
     end
     children[4].text = children[1].get_item(children[1].selected_index)
-    return
   end
+)
 
-  if name == "upgrade_planner_storage_confirm" then
+Gui.on_click(
+  "upgrade_planner_storage_confirm",
+  function(event)
+    local player = game.players[event.player_index]
     local index = global.storage_index[player.name]
-    local children = element.parent.children
+    local children = event.element.parent.children
     local new_name = children[4].text
     local length = string.len(new_name)
     if length < 1 then
@@ -492,8 +253,13 @@ script.on_event(defines.events.on_gui_click, function(event)
     global.storage_index[player.name] = index
     return
   end
+)
 
-  if name == "upgrade_planner_storage_delete" then
+Gui.on_click(
+  "upgrade_planner_storage_delete",
+  function(event)
+    local player = game.players[event.player_index]
+    local element = event.element
     local children = element.parent.children
     local dropdown = children[1]
     local index = dropdown.selected_index
@@ -511,38 +277,13 @@ script.on_event(defines.events.on_gui_click, function(event)
     global.storage_index[player.name] = index
     return
   end
-  if name == "upgrade_planner_config_button" then
-    gui_open_frame(player)
-    return
-  end
-  if name == "upgrade_planner_export_config" then
-    export_config(player)
-    return
-  end
-  if name == "upgrade_planner_import_config" then
-    import_config(player)
-    return
-  end
-  if name == "upgrade_planner_frame_close" then
-    player.opened.destroy()
-    gui_open_frame(player)
-    return
-  end
-  if name == "upgrade_planner_import_config_button" then
-    import_config_action(player)
-    return
-  end
-  local type, index = string.match(name, "upgrade_planner_(%a+)_(%d+)")
-  if type and index then
-    if type == "clear" then
-      gui_clear_rule(player, tonumber(index))
-      return
-    end
-  end
+)
 
-end)
+Gui.on_click("upgrade_planner_config_button", UPGui.open_frame_event)
 
-script.on_event(defines.events.on_gui_selection_state_changed, function(event)
+Gui.on_click("upgrade_planner_frame_close", UPGui.close_frame)
+
+Event.register(defines.events.on_gui_selection_state_changed, function(event)
   local element = event.element
   local player = game.players[event.player_index]
   if not string.find(element.name, "upgrade_planner_") then return end
@@ -554,7 +295,7 @@ script.on_event(defines.events.on_gui_selection_state_changed, function(event)
   end
 end)
 
-script.on_event(defines.events.on_gui_elem_changed, function(event)
+Event.register(defines.events.on_gui_elem_changed, function(event)
 
   local element = event.element
   local player = game.players[event.player_index]
@@ -567,18 +308,18 @@ script.on_event(defines.events.on_gui_elem_changed, function(event)
   end
 end)
 
-script.on_init(function()
+Event.register(Event.core_events.init, function()
   global_init()
   for k, player in pairs (game.players) do
-    gui_init(player)
+    UPGui.init(player)
   end
 end)
 
-script.on_event(defines.events.on_player_selected_area, function(event)
+Event.register(defines.events.on_player_selected_area, function(event)
   on_selected_area(event)
 end)
 
-script.on_event(defines.events.on_player_alt_selected_area, function(event)
+Event.register(defines.events.on_player_alt_selected_area, function(event)
   on_alt_selected_area(event)
 end)
 
@@ -891,13 +632,55 @@ function get_recipe(owner)
   return recipe
 end
 
-script.on_configuration_changed(function(data)
-  if not data or not data.mod_changes then
+function handle_upgrade_planner (event)
+  local player = game.players[event.player_index]
+  local stack = player.cursor_stack
+  if (stack and stack.valid and stack.valid_for_read and stack.is_upgrade_item) then
+    local config = {}
+    for i = 1,MAX_STORAGE_SIZE,1 do
+      local from = stack.get_mapper(i,"from").name or ""
+      local to = stack.get_mapper(i,"to").name or ""
+
+      config[i] = { from = from, to = to}
+    end
+    global.storage[player.name]["Imported storage"] = config
+    player.print({"upgrade-planner.import-sucessful"})
+    local count = 0
+    for k, storage in pairs (global.storage[player.name]) do
+      count = count + 1
+    end
+    global.storage_index[player.name] = count
+    UPGui.open_frame(player)
+    UPGui.open_frame(player)
+  else
+    local config = global.config[player.name]
+    if not config then return end
+    local hashmap = get_hashmap(config)
+    player.clean_cursor()
+    stack = player.cursor_stack
+    stack.set_stack{name = "upgrade-planner"}
+    local idx = 1
+    for item, configmap in pairs(hashmap) do
+      if configmap.item_from ~= nil then
+        stack.set_mapper(idx, "from", {type = "entity", name = configmap.item_from})
+      end
+      if configmap.item_from ~= nil then
+        stack.set_mapper(idx,"to",{type="entity",name=configmap.item_to})
+      end
+      idx = idx +1
+    end
+  end
+end
+
+Gui.on_click("upgrade_planner_configure_plan", handle_upgrade_planner)
+
+Event.register(Event.core_events.configuration_changed, function(event)
+  if not event or not event.mod_changes then
     return
   end
   verify_all_configs()
-  nuke_all_guis()
-  if data.mod_changes["upgrade-planner"] then
+  UPGui.nuke_all_guis()
+  if event.mod_changes["upgrade-planner"] then
     if not global.storage_index then
       global.storage_index = {}
     end
@@ -908,8 +691,8 @@ script.on_configuration_changed(function(data)
       if not global.storage_index[player.name] then
         global.storage[player.name] = global.storage[player.name] or {}
         global.storage[player.name]["New storage"] = global.config[player.name]
-        gui_open_frame(player)
-        gui_open_frame(player)
+        UPGui.open_frame_event(event)
+        UPGui.open_frame_event(event)
       end
     end
   end
@@ -940,9 +723,9 @@ function verify_all_configs()
   end
 end
 
-script.on_event(defines.events.on_player_joined_game, function(event)
+Event.register(defines.events.on_player_joined_game, function(event)
   local player = game.players[event.player_index]
-  gui_init(player)
+  UPGui.init(player)
 end)
 
 
@@ -1021,12 +804,17 @@ function update_blueprint_entities(stack, hashmap)
   return true
 end
 
-function upgrade_blueprint(player)
+function upgrade_blueprint(event)
+  local player = game.players[event.player_index]
   local stack = player.cursor_stack
-  if not (stack.valid and stack.valid_for_read) then return end
+  if not (stack.valid and stack.valid_for_read) then
+    return
+  end
 
   local config = global.config[player.name]
-  if not config then return end
+  if not config then
+    return
+  end
   local hashmap = get_hashmap(config)
 
   if stack.is_blueprint then
@@ -1063,12 +851,7 @@ function is_exception(from, to)
   return false
 end
 
-script.on_event("upgrade-planner", function(event)
-  local player = game.players[event.player_index]
-  gui_open_frame(player)
-end)
-
-script.on_event("upgrade-planner-hide", function(event)
+Event.register("upgrade-planner-hide", function(event)
   local player = game.players[event.player_index]
   local button_flow = mod_gui.get_button_flow(player)
   if button_flow["upgrade_planner_config_button"] then
@@ -1086,37 +869,52 @@ script.on_event("upgrade-planner-hide", function(event)
   button.visible = true
 end)
 
-script.on_event(defines.events.on_gui_closed, function(event)
+Event.register(defines.events.on_gui_closed, function(event)
   local player = game.players[event.player_index]
   local element = event.element
   if not element then return end
   if element.name == "upgrade_planner_config_frame" then
-    gui_open_frame(player)
+    UPGui.open_frame(player)
     return
   end
   if element.name == "upgrade_planner_export_frame" then
     element.destroy()
-    gui_open_frame(player)
+    UPGui.open_frame(player)
     return
   end
 end)
 
-script.on_event(defines.events.on_mod_item_opened, function(event)
-  local player = game.players[event.player_index]
+Event.register(defines.events.on_mod_item_opened, function(event)
   if event.item.name == "upgrade-builder" then
-    player.print("Fire")
-    gui_open_frame(player)
+    UPGui.open_frame_event(event)
   end
 end)
 
-script.on_event(defines.events.on_lua_shortcut, function(event)
-  if event.prototype_name ~= 'upgrade-builder' then return end
-
+function cleanup_upgrade_planner(event)
   local player = game.players[event.player_index]
-  player.clean_cursor()
-  player.remove_item({name = "upgrade-builder", count=100000})
-  player.cursor_stack.set_stack({name = "upgrade-builder"})
-end)
+  local is_trash = event.name == defines.events.on_player_trash_inventory_changed
+  local inventory
+
+  if is_trash then
+    inventory = player.get_inventory(defines.inventory.player_trash)
+  elseif is_trash == false then
+    inventory = player.get_main_inventory()
+  else
+    return
+  end
+
+  if game.item_prototypes["upgrade-builder"] then
+    if is_trash then
+      local upgrade_builder = inventory.find_item_stack("upgrade-builder")
+      if upgrade_builder then upgrade_builder.clear() end
+    else
+      local cnt = inventory.get_item_count("upgrade-builder")
+      if cnt > 1 then
+        inventory.remove {name = "upgrade-builder", count = cnt-1}
+      end
+    end
+  end
+end
 
 function print_full_gui_name(gui)
   local string = gui.name or "No_name"
@@ -1128,56 +926,17 @@ function print_full_gui_name(gui)
   game.print(string)
 end
 
-function find_gui_recursive(gui, name)
-  for k, child in pairs (gui.children) do
-    if child.name == name then return child end
-    find_gui_recursive(child, name)
-  end
-end
+Gui.on_click("upgrade_planner_import_config", function (event)
+  UPGui.import_export_config(event,true)
+end)
 
-function nuke_all_guis()
-  for k, player in pairs (game.players) do
-    for j, name in pairs ({"upgrade-planner.storage-frame", "upgrade-planner-config-button"}) do
-      local found = find_gui_recursive(player.gui, name)
-      if found then found.destroy() end
-    end
-  end
-end
+Gui.on_click("upgrade_planner_export_config", function (event)
+  UPGui.import_export_config(event,false)
+end)
 
-function export_config(player)
-  player.opened = nil
-  local gui = player.gui.center
-  local frame = gui.add{type = "frame", caption = {"upgrade-planner.export-config"}, name = "upgrade_planner_export_frame", direction = "vertical"}
-  local textfield = frame.add{type = "text-box"}
-  textfield.word_wrap = true
-  textfield.read_only = true
-  textfield.style.minimal_width = 500
-  textfield.style.minimal_height = 200
-  textfield.style.maximal_height = 500
-  textfield.text = enc(serpent.dump(global.storage[player.name]))
-  frame.add{type = "button", caption = {"gui.close"}, name = "upgrade_planner_frame_close", style = mod_gui.button_style}
-  frame.visible = true
-  player.opened = frame
-end
+function import_config_action(event)
+  local player = game.players[event.player_index]
 
-function import_config(player)
-  player.opened = nil
-  local gui = player.gui.center
-  local frame = gui.add{type = "frame", caption = {"upgrade-planner.import-config"}, name = "upgrade_planner_export_frame", direction = "vertical"}
-  local textfield = frame.add{type = "text-box"}
-  textfield.word_wrap = true
-  textfield.read_only = false
-  textfield.style.minimal_width = 500
-  textfield.style.minimal_height = 200
-  textfield.style.maximal_height = 500
-  local flow = frame.add{type = "flow"}
-  flow.add{type = "button", caption = {"upgrade-planner.import-button"}, name = "upgrade_planner_import_config_button", style = mod_gui.button_style}
-  flow.add{type = "button", caption = {"gui.close"}, name = "upgrade_planner_frame_close", style = mod_gui.button_style}
-  frame.visible = true
-  player.opened = frame
-end
-
-function import_config_action(player)
   if not player.opened then return end
   local frame = player.opened
   if not (frame.name and frame.name == "upgrade_planner_export_frame") then return end
@@ -1206,11 +965,13 @@ function import_config_action(player)
       count = count + 1
     end
     global.storage_index[player.name] = count
-    gui_open_frame(player)
+    UPGui.open_frame(player)
   else
     player.print({"upgrade-planner.import-failed"})
   end
 end
+
+Gui.on_click("upgrade_planner_import_config_button", import_config_action)
 
 -- character table string
 local b='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
@@ -1243,4 +1004,27 @@ function dec(data)
     for i=1,8 do c=c+(x:sub(i,i)=='1' and 2^(8-i) or 0) end
     return string.char(c)
   end))
+end
+
+Event.register("upgrade-planner", UPGui.open_frame_event)
+Event.register(
+  {defines.events.on_player_trash_inventory_changed, defines.events.on_player_main_inventory_changed},
+  cleanup_upgrade_planner
+)
+
+Gui.on_click("upgrade_blueprint", upgrade_blueprint)
+
+
+
+function dump(o)
+  if type(o) == 'table' then
+     local s = '{ '
+     for k,v in pairs(o) do
+        if type(k) ~= 'number' then k = '"'..k..'"' end
+        s = s .. '['..k..'] = ' .. dump(v) .. ','
+     end
+     return s .. '} '
+  else
+     return tostring(o)
+  end
 end
