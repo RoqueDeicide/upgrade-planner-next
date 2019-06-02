@@ -2,6 +2,7 @@ require("mod-gui")
 local Event = require('__stdlib__/stdlib/event/event')
 local Gui = require('__stdlib__/stdlib/event/gui')
 local UPGui = require('upgrade-planner/gui')
+local UPconvert = require('upgrade-planner/converter')
 MAX_CONFIG_SIZE = 24
 MAX_STORAGE_SIZE = 12
 in_range_check_is_annoying = true
@@ -636,13 +637,7 @@ function handle_upgrade_planner (event)
   local player = game.players[event.player_index]
   local stack = player.cursor_stack
   if (stack and stack.valid and stack.valid_for_read and stack.is_upgrade_item) then
-    local config = {}
-    for i = 1,MAX_STORAGE_SIZE,1 do
-      local from = stack.get_mapper(i,"from").name or ""
-      local to = stack.get_mapper(i,"to").name or ""
-
-      config[i] = { from = from, to = to}
-    end
+    config = UPconvert.from_upgrade_planner(stack)
     global.storage[player.name]["Imported storage"] = config
     player.print({"upgrade-planner.import-sucessful"})
     local count = 0
@@ -655,20 +650,9 @@ function handle_upgrade_planner (event)
   else
     local config = global.config[player.name]
     if not config then return end
-    local hashmap = get_hashmap(config)
     player.clean_cursor()
     stack = player.cursor_stack
-    stack.set_stack{name = "upgrade-planner"}
-    local idx = 1
-    for item, configmap in pairs(hashmap) do
-      if configmap.item_from ~= nil then
-        stack.set_mapper(idx, "from", {type = "entity", name = configmap.item_from})
-      end
-      if configmap.item_from ~= nil then
-        stack.set_mapper(idx,"to",{type="entity",name=configmap.item_to})
-      end
-      idx = idx +1
-    end
+    UPconvert.to_upgrade_planner(stack, config, player)
   end
 end
 
@@ -943,7 +927,7 @@ function import_config_action(event)
   local textbox = frame.children[1]
   if not textbox.type == "text-box" then return end
   local text = textbox.text
-  local result = loadstring(dec(text))
+  local result = loadstring(UPconvert.dec(text))
   if result then
     new_config = result()
   else
@@ -973,39 +957,6 @@ end
 
 Gui.on_click("upgrade_planner_import_config_button", import_config_action)
 
--- character table string
-local b='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
-
--- encoding
-function enc(data)
-  return ((data:gsub('.', function(x)
-    local r,b='',x:byte()
-    for i=8,1,-1 do r=r..(b%2^i-b%2^(i-1)>0 and '1' or '0') end
-    return r;
-  end)..'0000'):gsub('%d%d%d?%d?%d?%d?', function(x)
-    if (#x < 6) then return '' end
-    local c=0
-    for i=1,6 do c=c+(x:sub(i,i)=='1' and 2^(6-i) or 0) end
-    return b:sub(c+1,c+1)
-  end)..({ '', '==', '=' })[#data%3+1])
-end
-
--- decoding
-function dec(data)
-  data = string.gsub(data, '[^'..b..'=]', '')
-  return (data:gsub('.', function(x)
-    if (x == '=') then return '' end
-    local r,f='',(b:find(x)-1)
-    for i=6,1,-1 do r=r..(f%2^i-f%2^(i-1)>0 and '1' or '0') end
-    return r;
-  end):gsub('%d%d%d?%d?%d?%d?%d?%d?', function(x)
-    if (#x ~= 8) then return '' end
-    local c=0
-    for i=1,8 do c=c+(x:sub(i,i)=='1' and 2^(8-i) or 0) end
-    return string.char(c)
-  end))
-end
-
 Event.register("upgrade-planner", UPGui.open_frame_event)
 Event.register(
   {defines.events.on_player_trash_inventory_changed, defines.events.on_player_main_inventory_changed},
@@ -1013,18 +964,3 @@ Event.register(
 )
 
 Gui.on_click("upgrade_blueprint", upgrade_blueprint)
-
-
-
-function dump(o)
-  if type(o) == 'table' then
-     local s = '{ '
-     for k,v in pairs(o) do
-        if type(k) ~= 'number' then k = '"'..k..'"' end
-        s = s .. '['..k..'] = ' .. dump(v) .. ','
-     end
-     return s .. '} '
-  else
-     return tostring(o)
-  end
-end
