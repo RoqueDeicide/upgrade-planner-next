@@ -1,5 +1,9 @@
 ## Changelog
 
+## 1.6.5
+
+- Fix export error when exporting to upgrade planner with items from different fast_replaceable_groups
+
 ## 1.6.4
 
 - Fix import window not accepting input
