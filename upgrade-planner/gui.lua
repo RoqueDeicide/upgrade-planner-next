@@ -232,14 +232,14 @@ local function open_frame(player)
   }
   button_grid.add {
     type = "sprite-button",
-    name = "upgrade_planner_import_config",
+    name = "upgrade_planner_import_config_open",
     sprite = "utility/import_slot",
     tooltip = {"upgrade-planner.config-button-import-config"},
     style = mod_gui.button_style
   }
   button_grid.add {
     type = "sprite-button",
-    name = "upgrade_planner_export_config",
+    name = "upgrade_planner_export_config_open",
     sprite = "utility/export_slot",
     tooltip = {"upgrade-planner.config-button-export-config"},
     style = mod_gui.button_style
