@@ -12,6 +12,7 @@ function global_init()
   global["config-tmp"] = {}
   global.storage = {}
   global.storage_index = {}
+  global.default_bot = {}
 end
 
 function get_type(entity)
@@ -317,11 +318,21 @@ Event.register(Event.core_events.init, function()
 end)
 
 Event.register(defines.events.on_player_selected_area, function(event)
-  on_selected_area(event)
+  local player = game.players[event.player_index]
+  if global.default_bot[player.name] then
+    on_bot_selected_area(event)
+  else
+    on_selected_area(event)
+  end
 end)
 
 Event.register(defines.events.on_player_alt_selected_area, function(event)
-  on_alt_selected_area(event)
+  local player = game.players[event.player_index]
+  if global.default_bot[player.name] then
+    on_selected_area(event)
+  else
+    on_bot_selected_area(event)
+  end
 end)
 
 function on_selected_area(event)
@@ -572,7 +583,7 @@ function player_upgrade(player,belt,upgrade, bool)
   end
 end
 
-function on_alt_selected_area(event)
+function on_bot_selected_area(event)
   --this is a lot simpler... but less cool
   if event.item ~= "upgrade-builder" then return end
   local player = game.players[event.player_index]
@@ -650,9 +661,11 @@ function handle_upgrade_planner (event)
   else
     local config = global.config[player.name]
     if not config then return end
-    player.clean_cursor()
-    stack = player.cursor_stack
-    UPconvert.to_upgrade_planner(stack, config, player)
+
+    if player.clean_cursor() then
+      stack = player.cursor_stack
+      UPconvert.to_upgrade_planner(stack, config, player)
+    end
   end
 end
 
@@ -671,10 +684,14 @@ Event.register(Event.core_events.configuration_changed, function(event)
     if not global.storage then
       global.storage = {}
     end
+    if not global.default_bot then
+      global.default_bot = {}
+    end
     for k, player in pairs (game.players) do
       if not global.storage_index[player.name] then
         global.storage[player.name] = global.storage[player.name] or {}
         global.storage[player.name]["New storage"] = global.config[player.name]
+        global.default_bot[player.name] = global.default_bot[player.name] or false
         UPGui.open_frame_event(event)
         UPGui.open_frame_event(event)
       end
@@ -916,6 +933,14 @@ end)
 
 Gui.on_click("upgrade_planner_export_config_open", function (event)
   UPGui.import_export_config(event,false)
+end)
+
+Gui.on_checked_state_changed("default_bot_checkbox", function(event)
+  local player = game.players[event.player_index]
+  local element = event.element
+
+  global.default_bot[player.name] = element.state
+
 end)
 
 function import_config_action(event)

@@ -221,6 +221,14 @@ local function open_frame(player)
     }
   end
 
+  local default_bot = frame.add {
+    type = 'checkbox',
+    name = "default_bot_checkbox",
+    state = global.default_bot[player.name] or false,
+    caption = {"upgrade-planner.default-bot-upgrade-caption"},
+    tooltip = {"upgrade-planner.default-bot-upgrade-tooltip"}
+  }
+
   local button_grid =
     frame.add {
     type = "table",
