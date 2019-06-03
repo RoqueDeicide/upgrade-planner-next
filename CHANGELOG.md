@@ -1,5 +1,9 @@
 ## Changelog
 
+## 1.6.7
+
+- Fix item override on Upgrade Planner export
+
 ## 1.6.6
 
 - Fix crash on player trash inventory changing

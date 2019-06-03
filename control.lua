@@ -650,9 +650,11 @@ function handle_upgrade_planner (event)
   else
     local config = global.config[player.name]
     if not config then return end
-    player.clean_cursor()
-    stack = player.cursor_stack
-    UPconvert.to_upgrade_planner(stack, config, player)
+
+    if player.clean_cursor() then
+      stack = player.cursor_stack
+      UPconvert.to_upgrade_planner(stack, config, player)
+    end
   end
 end
 
