@@ -1,5 +1,14 @@
 ## Changelog
 
+## 1.6.8
+
+- Revert: Add option to switch upgrade default mode
+
+## 1.6.7
+
+- Add option to switch upgrade default mode
+- Fix item override on Upgrade Planner export
+
 ## 1.6.7
 
 - Fix item override on Upgrade Planner export
