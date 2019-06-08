@@ -14,9 +14,9 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 WORK_DIR=`mktemp -d`
 
-# check if tmp dir was created
+# check if temporary directory was created
 if [[ ! "$WORK_DIR" || ! -d "$WORK_DIR" ]]; then
-  echo "Could not create temp dir"
+  echo "Could not create temporary directory"
   exit 1
 fi
 
@@ -29,12 +29,12 @@ function safe_change_dir {
     if cd $1; then
         :
     else
-        echo "CD failed to change dir"
+        echo "CD failed to change directory"
         exit 1
     fi
 }
 
-# register the cleanup function to be called on the EXIT signal
+# register the clean-up function to be called on the EXIT signal
 trap cleanup EXIT
 
 cp -R $DIR $WORK_DIR
@@ -46,7 +46,7 @@ rm -rf .git*
 rm -rf screenshots
 rm create-release.sh
 
-sed -i "s/0.0.0/$VERSION/g" info.json
+sed -i "s/\"version\": \".*\",/\"version\": \"$VERSION\",/g" info.json
 
 safe_change_dir $WORK_DIR
 
