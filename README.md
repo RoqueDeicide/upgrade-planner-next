@@ -8,3 +8,10 @@ Using the selection tool 'Upgrade Builder' you can select items to upgrade. Set 
 
 Then select items to upgrade, and they will be upgraded using items from your inventory.
 By holding 'Shift' while selecting an area, the upgrade will be performed using construction robots.
+
+## Acknowledgements
+
+Original Mod By *kds71*
+Version 1.1.10 by *malk0lm*
+Updated to 0.13.6 by *Slayer1557*
+Improved to use 0.13 API features by *Klonan*
