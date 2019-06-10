@@ -89,7 +89,7 @@ Event.register(
 )
 
 Event.register(
-  defines.events.on_player_removed,
+  defines.events.on_pre_player_removed,
   function(event)
     local player = game.players[event.player_index]
     global.current_config.remove(player_idx)
