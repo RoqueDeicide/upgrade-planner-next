@@ -12,5 +12,6 @@
         "git-commit",
         "lua",
         "shellscript"
-    ]
+    ],
+    "editor.formatOnSave": true
 }
