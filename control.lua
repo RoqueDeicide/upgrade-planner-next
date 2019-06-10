@@ -665,7 +665,6 @@ Event.register(Event.core_events.configuration_changed, function(event)
     return
   end
   verify_all_configs()
-  UPGui.nuke_all_guis()
   if event.mod_changes["upgrade-planner"] then
     if not global.storage_index then
       global.storage_index = {}

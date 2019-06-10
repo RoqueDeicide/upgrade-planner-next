@@ -27,17 +27,6 @@ local function find_gui_recursive(gui, name)
   end
 end
 
-upgrade_planner_gui.nuke_all_guis = function()
-  for k, player in pairs(game.players) do
-    for j, name in pairs({"upgrade-planner.storage-frame", "upgrade-planner-config-button"}) do
-      local found = find_gui_recursive(player.gui, name)
-      if found then
-        found.destroy()
-      end
-    end
-  end
-end
-
 local function open_frame(player)
   local flow = mod_gui.get_frame_flow(player)
 
