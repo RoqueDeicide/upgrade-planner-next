@@ -665,22 +665,6 @@ Event.register(Event.core_events.configuration_changed, function(event)
     return
   end
   verify_all_configs()
-  if event.mod_changes["upgrade-planner"] then
-    if not global.storage_index then
-      global.storage_index = {}
-    end
-    if not global.storage then
-      global.storage = {}
-    end
-    for k, player in pairs (game.players) do
-      if not global.storage_index[player.name] then
-        global.storage[player.name] = global.storage[player.name] or {}
-        global.storage[player.name]["New storage"] = global.config[player.name]
-        UPGui.open_frame_event(event)
-        UPGui.open_frame_event(event)
-      end
-    end
-  end
 end)
 
 -- Verify if all items selected for upgrade still exists (e.g. modded items)
