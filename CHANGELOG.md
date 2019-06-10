@@ -1,172 +1,331 @@
-## Changelog
+# Changelog
 
 ## 1.6.8
 
+### Bugfixes
+
 - Revert: Add option to switch upgrade default mode
 
+---
+
 ## 1.6.7
+
+### Features
 
 - Add option to switch upgrade default mode
+
+### Bugfixes
+
 - Fix item override on Upgrade Planner export
 
-## 1.6.7
+---
 
-- Fix item override on Upgrade Planner export
+##  1.6.6
 
-## 1.6.6
+### Bugfixes
 
 - Fix crash on player trash inventory changing
 
-## 1.6.5
+---
+
+##  1.6.5
+
+### Bugfixes
 
 - Fix export error when exporting to upgrade planner with items from different fast_replaceable_groups
 
-## 1.6.4
+---
+
+##  1.6.4
+
+### Bugfixes
 
 - Fix import window not accepting input
 
-## 1.6.3
+---
+
+##  1.6.3
+
+### Features
 
 - Add Import from/Export to the official Upgrade Planner
+
+### Changes
+
 - Align GUI with in-game Upgrade Planner
 
-## 1.6.2
+---
+
+##  1.6.2
+
+### Features
+
+- Added a toolbar shortcut
+
+### Changes
 
 - Removed old bot functionality and use the new in built Upgrade Planner bot functionality
-- Added a toolbar shortcut
 - Fix that there is no way to remove old Upgrade Planners
 
-## 1.6.1
+---
+
+##  1.6.1
 
 - Add thumbnail image
 
-## 1.6.0
+---
+
+##  1.6.0
 
 - Upgrade for Factorio 0.17
 
-## 1.4.11
+---
+
+##  1.4.11
+
+### Bugfixes
 
 - Fix issue with drop down index
 
-## 1.4.10
+---
+
+##  1.4.10
+
+### Bugfixes
 
 - Fixed small error
 
-## 1.4.9
+---
+
+##  1.4.9
+
+### Bugfixes
 
 - Fixed upgrading assembling machines without a recipe set
 
-## 1.4.8
+---
+
+##  1.4.8
+
+### Bugfixes
 
 - Fixed upgrading beacons with modules
 
-## 1.4.7
+---
 
-- Fixed raised_event error, fixed rail ghosts would expire instantly, fixed upgrading modules in blueprints
+##  1.4.7
 
-## 1.4.6
+### Bugfixes
+
+- Fixed raised_event error
+- Fixed rail ghosts would expire instantly
+- Fixed upgrading modules in blueprints
+
+---
+
+##  1.4.6
+
+### Changes
 
 - Added support for upgrading rails and curved rails
-- Configs will be verified on configuration to check for item prototype changes
+- Configs will be verified on configuration to check for item prototype "Changes"
+
+### Bugfixes
+
 - Fixed error with old invalid configs
 - Fixed error when drop down index could become out of range
 
-## 1.4.5
+---
 
-- Add upgrading tiles in blueprints, Fix configs not switching properly again, other clean up and fixes
+##  1.4.5
 
-## 1.4.4
+### Changes
 
-- Fixed config wouldn't switch properly, Fixed trying to upgrade tiles in blueprints
+- Add upgrading tiles in blueprints
 
-## 1.4.3
+### Bugfixes
+
+- Fix configs not switching properly again
+- Other clean up and fixes
+
+---
+
+##  1.4.4
+
+### Bugfixes
+
+- Fixed config wouldn't switch properly
+- Fixed trying to upgrade tiles in blueprints
+
+---
+
+##  1.4.3
+
+### Bugfixes
 
 - Fixed clearing items wouldn't update the config
 
-## 1.4.2
+---
+
+##  1.4.2
+
+### Bugfixes
 
 - Fixed rules not being cleared properly
 
-## 1.4.1
+---
+
+##  1.4.1
+
+### Bugfixes
 
 - Fix choose elem button triggering for other mod guis
 
-## 1.4.0
+---
 
-- New GUI for rule-sets, upgrade modules, upgrade modules in blueprints, fixed some other minor issues.
+##  1.4.0
+
+### Changes
+
+- New GUI for rule-sets
+- Upgrade modules
+- Upgrade modules in blueprints
 - Removed deconstructing trees, use filtered deconstruction planners, I felt it was outside the scope of the mod.
 - I also cleaned up a lot of the original authors code, or some other maintainers. It is somewhat cleaner now
 
-## 1.3.9
+### Bugfixes
 
-- Adds a new item and recipe (unlocked with Upgrade builder technology) - "Upgrade Builder" - that allows you to replace entities on the map using construction robots. Entities are replaced by hand unless you hold shift when selecting an area to mark it for bots to upgrade.
+- Fixed some other minor issues.
 
-## 1.2.17
+---
 
-- Able to upgrade blueprints, also added hotkey for toggling GUI visibility and button visibility
+##  1.3.9
 
-## 1.2.16
+- Adds a new item and recipe (unlocked with Upgrade builder technology) "Upgrade Builder" that allows you to replace entities on the map using construction robots. Entities are replaced by hand unless you hold shift when selecting an area to mark it for bots to upgrade.
+
+---
+
+##  1.2.17
+
+- Able to upgrade blueprints
+- Added hotkey for toggling GUI visibility and button visibility
+
+---
+
+##  1.2.16
 
 - Hacked in choose elem button
 
-## 1.2.15
+---
 
-- 0.15 compatibility, New GUI
+##  1.2.15
 
-## 1.2.14
+- 0.15 compatibility
+- New GUI
 
-- Removed distance checking as it was annoying, Fixed raised event error.
+---
 
-## 1.2.13
+##  1.2.14
+
+### Changes
+
+- Removed distance checking as it was annoying
+
+### Bugfixes
+
+- Fixed raised event error.
+
+---
+
+##  1.2.13
+
+### Bugfixes
 
 - Fixed another belt not valid crash
 
-## 1.2.12
+---
+
+##  1.2.12
+
+### Bugfixes
 
 - Fixed belt not valid crash
 
-## 1.2.11
+---
+
+##  1.2.11
+
+### Bugfixes
 
 - Fixed GUI not showing on player joining a game
 
-## 1.2.9
+---
+
+##  1.2.9
 
 - If you upgrade one half of an underground belt it will try to upgrade the other half
 
-## 1.2.8
+---
+
+##  1.2.8
+
+### Bugfixes
 
 - Fixed error about removed mod items
 
-## 1.2.7
+---
+
+##  1.2.7
+
+### Bugfixes
 
 - Fixed on_built_entity error
 
-## 1.2.6
+---
+
+##  1.2.6
 
 - Upgrade planner will now raise events preplayer_mined_item, player_mined_item and on_built_entity
 
-## 1.2.5
+---
 
-- For Factorio 0.14 - Added support for deconstructing trees like this:
+##  1.2.5
 
-## 1.2.3
+- Added support for deconstructing trees like this:
+
+---
+
+##  1.2.3
 
 - Uses better method where possible to replace entities.
 
-## 1.2.2
+---
 
-- Minor fixes and further clean up by Klonan, recipe changed to deconstruction planner, Change from text button to image button
+##  1.2.2
 
-## 1.2
+### Changes
+
+- Recipe changed to deconstruction planner
+- Change from text button to image button
+
+### Bugfixes
+
+- Minor fixes and further clean up by Klonan
+
+---
+
+##  1.2
 
 - I asked Klonan if we could cooperate and incorporate his version of the mod. The result is a much more powerful Upgrade builder. Now you are able to upgrade entities by hand, rather than relying on robots. You can still tell robots to do it by holding the shift key when designating the area.
 
-## 1.1.12
+---
+
+##  1.1.12
+
+### Changes
 
 - Added German Localization courtesy of Luma88 and Russian courtesy of RikkiLook.
-- BUXFIX: Underground belts will now maintain their orientation when upgraded.
 
-Original Mod By *kds71*
-Version 1.1.10 by *malk0lm*
-Updated to 0.13.6 by *Slayer1557*
-Improved to use 0.13 API features by *Klonan*
+### Bugfixes
+
+- Underground belts will now maintain their orientation when upgraded.

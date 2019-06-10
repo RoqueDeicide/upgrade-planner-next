@@ -1,7 +1,7 @@
-local UPconvert = require('upgrade-planner/converter')
+local UPConvert = require("upgrade-planner/converter")
+local UPUtility = require("utility")
 
 local upgrade_planner_gui = {}
-
 
 upgrade_planner_gui.init = function(player)
   local flow = mod_gui.get_button_flow(player)
@@ -18,26 +18,6 @@ upgrade_planner_gui.init = function(player)
   end
 end
 
-local function find_gui_recursive(gui, name)
-  for k, child in pairs(gui.children) do
-    if child.name == name then
-      return child
-    end
-    find_gui_recursive(child, name)
-  end
-end
-
-upgrade_planner_gui.nuke_all_guis = function()
-  for k, player in pairs(game.players) do
-    for j, name in pairs({"upgrade-planner.storage-frame", "upgrade-planner-config-button"}) do
-      local found = find_gui_recursive(player.gui, name)
-      if found then
-        found.destroy()
-      end
-    end
-  end
-end
-
 local function open_frame(player)
   local flow = mod_gui.get_frame_flow(player)
 
@@ -49,16 +29,16 @@ local function open_frame(player)
     return
   end
 
-  global.config[player.name] = global.config[player.name] or {}
+  global.current_config[player.index] = global.current_config[player.index] or {}
   global["config-tmp"][player.name] = {}
   local i = 0
   for i = 1, MAX_CONFIG_SIZE do
-    if i > #global.config[player.name] then
+    if i > #global.current_config[player.index] then
       global["config-tmp"][player.name][i] = {from = "", to = ""}
     else
       global["config-tmp"][player.name][i] = {
-        from = global.config[player.name][i].from,
-        to = global.config[player.name][i].to
+        from = global.current_config[player.index][i].from,
+        to = global.current_config[player.index][i].to
       }
     end
   end
@@ -74,8 +54,8 @@ local function open_frame(player)
   if not global.storage_index then
     global.storage_index = {}
   end
-  if not global.storage_index[player.name] then
-    global.storage_index[player.name] = 1
+  if not global.storage_index[player.index] then
+    global.storage_index[player.index] = 1
   end
   local storage_flow = frame.add {type = "table", name = "upgrade_planner_storage_flow", column_count = 3}
   --storage_flow.style.horizontal_spacing = 2
@@ -86,20 +66,20 @@ local function open_frame(player)
   if not global.storage then
     global.storage = {}
   end
-  if not global.storage[player.name] then
-    global.storage[player.name] = {}
+  if not global.storage[player.index] then
+    global.storage[player.index] = {}
   end
-  for key, _ in pairs(global.storage[player.name]) do
+  for key, _ in pairs(global.storage[player.index]) do
     drop_down.add_item(key)
   end
-  if not global.storage[player.name]["New storage"] then
+  if not global.storage[player.index]["New storage"] then
     drop_down.add_item("New storage")
   end
   local items = drop_down.items
-  local index = math.min(global.storage_index[player.name], #items)
+  local index = math.min(global.storage_index[player.index], #items)
   index = math.max(index, 1)
   drop_down.selected_index = index
-  global.storage_index[player.name] = index
+  global.storage_index[player.index] = index
   local storage_to_restore = drop_down.get_item(drop_down.selected_index)
   local rename_button =
     storage_flow.add {
@@ -184,9 +164,9 @@ local function open_frame(player)
   for i = 1, MAX_CONFIG_SIZE do
     local sprite = nil
     local tooltip = nil
-    local from = get_config_item(player, i, "from")
+    local from = UPUtility.get_config_item(player, i, "from")
     if from then
-      --sprite = "item/"..get_config_item(player, i, "from")
+      --sprite = "item/"..UPUtility.get_config_item(player, i, "from")
       tooltip = items[from].localised_name
     end
     local elem =
@@ -201,9 +181,9 @@ local function open_frame(player)
     elem.elem_value = from
     local sprite = nil
     local tooltip = nil
-    local to = get_config_item(player, i, "to")
+    local to = UPUtility.get_config_item(player, i, "to")
     if to then
-      --sprite = "item/"..get_config_item(player, i, "to")
+      --sprite = "item/"..UPUtility.get_config_item(player, i, "to")
       tooltip = items[to].localised_name
     end
     local elem =
@@ -220,6 +200,15 @@ local function open_frame(player)
       type = "label"
     }
   end
+
+  local default_bot =
+    frame.add {
+    type = "checkbox",
+    name = "upgrade_planner_default_bot_checkbox",
+    state = global.default_bot[player.index] or false,
+    caption = {"upgrade-planner.default-bot-upgrade-caption"},
+    tooltip = {"upgrade-planner.default-bot-upgrade-tooltip"}
+  }
 
   local button_grid =
     frame.add {
@@ -249,7 +238,7 @@ local function open_frame(player)
   }
   button_grid.add {
     type = "sprite-button",
-    name = "upgrade_planner_configure_plan",
+    name = "upgrade_planner_convert_ingame",
     sprite = "item/upgrade-planner",
     tooltip = {"upgrade-planner.config-button-export-config"},
     style = mod_gui.button_style
@@ -260,7 +249,7 @@ local function open_frame(player)
     name = "upgrade_planner_frame_close",
     style = mod_gui.button_style
   }
-  gui_restore(player, storage_to_restore)
+  restore_config(player, storage_to_restore)
 end
 
 upgrade_planner_gui.open_frame_event = function(event)
@@ -313,7 +302,7 @@ upgrade_planner_gui.import_export_config = function(event, import)
   textfield.style.minimal_height = 200
   textfield.style.maximal_height = 500
   if not import then
-    textfield.text = UPconvert.enc(serpent.dump(global.storage[player.name]))
+    textfield.text = UPConvert.enc(serpent.dump(global.storage[player.index]))
   end
   local flow = frame.add {type = "flow"}
   if import then
@@ -334,5 +323,55 @@ upgrade_planner_gui.import_export_config = function(event, import)
   player.opened = frame
   open_frame(player)
 end
+
+function restore_config(player, name)
+  local frame = player.gui.left.mod_gui_frame_flow.upgrade_planner_config_frame
+  if not frame then
+    return
+  end
+  if not global.storage[player.index] then
+    return
+  end
+  local storage = global.storage[player.index][name]
+  if not storage and name == "New storage" then
+    storage = {}
+  end
+  if not storage then
+    return
+  end
+
+  global["config-tmp"][player.name] = {}
+  local items = game.item_prototypes
+  local i = 0
+  local ruleset_grid = frame["upgrade_planner_ruleset_grid"]
+  local items = game.item_prototypes
+  for i = 1, MAX_CONFIG_SIZE do
+    if i > #storage then
+      global["config-tmp"][player.name][i] = {from = "", to = ""}
+    else
+      global["config-tmp"][player.name][i] = {
+        from = storage[i].from,
+        to = storage[i].to
+      }
+    end
+    local name = UPUtility.get_config_item(player, i, "from")
+    ruleset_grid["upgrade_planner_from_" .. i].elem_value = name
+    if name and name ~= "" then
+      ruleset_grid["upgrade_planner_from_" .. i].tooltip = items[name].localised_name
+    else
+      ruleset_grid["upgrade_planner_from_" .. i].tooltip = ""
+    end
+    local name = UPUtility.get_config_item(player, i, "to")
+    ruleset_grid["upgrade_planner_to_" .. i].elem_value = name
+    if name and name ~= "" then
+      ruleset_grid["upgrade_planner_to_" .. i].tooltip = items[name].localised_name
+    else
+      ruleset_grid["upgrade_planner_to_" .. i].tooltip = ""
+    end
+  end
+  global.current_config[player.index] = global["config-tmp"][player.name]
+end
+
+upgrade_planner_gui.restore_config = restore_config
 
 return upgrade_planner_gui
