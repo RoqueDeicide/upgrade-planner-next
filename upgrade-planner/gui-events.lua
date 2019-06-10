@@ -101,9 +101,9 @@ function gui_save_changes(player)
 
   if global["config-tmp"][player.name] then
     local i = 0
-    global.config[player.name] = {}
+    global.current_config[player.name] = {}
     for i = 1, #global["config-tmp"][player.name] do
-      global.config[player.name][i] = {
+      global.current_config[player.name][i] = {
         from = global["config-tmp"][player.name][i].from,
         to = global["config-tmp"][player.name][i].to
       }
@@ -121,7 +121,7 @@ function gui_save_changes(player)
   end
   local drop_down = gui.upgrade_planner_storage_flow.children[1]
   local name = drop_down.get_item(global.storage_index[player.name])
-  global.storage[player.name][name] = global.config[player.name]
+  global.storage[player.name][name] = global.current_config[player.name]
 end
 
 --- Switch selected storage
@@ -135,7 +135,7 @@ function on_gui_selection_state_changed(event)
     global.storage_index[player.name] = element.selected_index
     local name = element.get_item(element.selected_index)
     UPGui.restore_config(player, name)
-    global.config[player.name] = global.storage[player.name][name]
+    global.current_config[player.name] = global.storage[player.name][name]
   end
 end
 
@@ -154,7 +154,7 @@ function oc_convert_ingame(event)
     UPGui.open_frame(player)
     UPGui.open_frame(player)
   else
-    local config = global.config[player.name]
+    local config = global.current_config[player.name]
     if not config then
       return
     end

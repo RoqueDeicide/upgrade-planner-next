@@ -12,7 +12,7 @@ in_range_check_is_annoying = true
 -- Initialization
 -----------------------------------------------
 function global_init()
-  global.config = {}
+  global.current_config = {}
   global["config-tmp"] = {}
   global.storage = {}
   global.storage_index = {}
@@ -54,7 +54,7 @@ function verify_all_configs()
       return changed
     end
   end
-  for name, config in pairs(global.config) do
+  for name, config in pairs(global.current_config) do
     local changed = verify_config(config)
     if changed then
       UPGui.open_frame(game.players[name])
