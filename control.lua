@@ -95,7 +95,6 @@ Event.register(
 Event.register(
   defines.events.on_pre_player_removed,
   function(event)
-    local player = game.players[event.player_index]
     global.default_bot[event.player_index] = nil
     global.current_config[event.player_index] = nil
     global.storage_index[player.index] = nil
