@@ -44,7 +44,7 @@ function gui_set_rule(player, type, index, element)
   local frame = player.gui.left.mod_gui_frame_flow.upgrade_planner_config_frame
   local ruleset_grid = frame["upgrade_planner_ruleset_grid"]
   local storage_name =
-    element.parent.parent.upgrade_planner_storage_flow.children[1].get_item(global.storage_index[player.name])
+    element.parent.parent.upgrade_planner_storage_flow.children[1].get_item(global.storage_index[player.index])
   local storage = global["config-tmp"][player.name]
   if not frame or not storage then
     return
@@ -120,7 +120,7 @@ function gui_save_changes(player)
     return
   end
   local drop_down = gui.upgrade_planner_storage_flow.children[1]
-  local name = drop_down.get_item(global.storage_index[player.name])
+  local name = drop_down.get_item(global.storage_index[player.index])
   global.storage[player.name][name] = global.current_config[player.index]
 end
 
@@ -132,7 +132,7 @@ function on_gui_selection_state_changed(event)
     return
   end
   if element.selected_index > 0 then
-    global.storage_index[player.name] = element.selected_index
+    global.storage_index[player.index] = element.selected_index
     local name = element.get_item(element.selected_index)
     UPGui.restore_config(player, name)
     global.current_config[player.index] = global.storage[player.name][name]
@@ -150,7 +150,7 @@ function oc_convert_ingame(event)
     for k, storage in pairs(global.storage[player.name]) do
       count = count + 1
     end
-    global.storage_index[player.name] = count
+    global.storage_index[player.index] = count
     UPGui.open_frame(player)
     UPGui.open_frame(player)
   else
@@ -206,7 +206,7 @@ function oc_import_config(event)
     for k, storage in pairs(global.storage[player.name]) do
       count = count + 1
     end
-    global.storage_index[player.name] = count
+    global.storage_index[player.index] = count
     UPGui.open_frame(player)
   else
     player.print({"upgrade-planner.import-failed"})
@@ -218,7 +218,7 @@ end
 -----------------------------------------------
 function oc_storage_confirm(event)
   local player = game.players[event.player_index]
-  local index = global.storage_index[player.name]
+  local index = global.storage_index[player.index]
   local children = event.element.parent.children
   local new_name = children[4].text
   local length = string.len(new_name)
@@ -253,7 +253,7 @@ function oc_storage_confirm(event)
   children[1].set_item(index, new_name)
   children[1].selected_index = 0
   children[1].selected_index = index
-  global.storage_index[player.name] = index
+  global.storage_index[player.index] = index
   return
 end
 
@@ -293,7 +293,7 @@ function oc_storage_delete(event)
   dropdown.selected_index = 0
   dropdown.selected_index = index
   UPGui.restore_config(player, dropdown.get_item(index))
-  global.storage_index[player.name] = index
+  global.storage_index[player.index] = index
   return
 end
 

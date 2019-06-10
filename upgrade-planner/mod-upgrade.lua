@@ -6,5 +6,12 @@ return {
       global.current_config[game.players[player_name].index] = config
     end
     global.config = nil
+
+    local temp_storage_index = global.storage_index
+    global.storage_index = {}
+
+    for player_name, index in pairs(temp_storage_index) do
+      global.storage_index[game.players[player_name].index] = index
+    end
   end
 }

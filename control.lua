@@ -23,6 +23,7 @@ end
 
 function player_init(player_idx)
   global.current_config[player_idx] = global.current_config[player_idx] or {}
+  global.storage_index[player_idx] = global.storage_index[player_idx] or 1
 end
 
 Event.register(
@@ -93,6 +94,7 @@ Event.register(
   function(event)
     local player = game.players[event.player_index]
     global.current_config[event.player_index] = nil
+    global.storage_index[player.index] = nil
   end
 )
 

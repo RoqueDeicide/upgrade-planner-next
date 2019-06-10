@@ -54,8 +54,8 @@ local function open_frame(player)
   if not global.storage_index then
     global.storage_index = {}
   end
-  if not global.storage_index[player.name] then
-    global.storage_index[player.name] = 1
+  if not global.storage_index[player.index] then
+    global.storage_index[player.index] = 1
   end
   local storage_flow = frame.add {type = "table", name = "upgrade_planner_storage_flow", column_count = 3}
   --storage_flow.style.horizontal_spacing = 2
@@ -76,10 +76,10 @@ local function open_frame(player)
     drop_down.add_item("New storage")
   end
   local items = drop_down.items
-  local index = math.min(global.storage_index[player.name], #items)
+  local index = math.min(global.storage_index[player.index], #items)
   index = math.max(index, 1)
   drop_down.selected_index = index
-  global.storage_index[player.name] = index
+  global.storage_index[player.index] = index
   local storage_to_restore = drop_down.get_item(drop_down.selected_index)
   local rename_button =
     storage_flow.add {
