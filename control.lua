@@ -683,20 +683,28 @@ Event.register(Event.core_events.configuration_changed, function(event)
   end
 end)
 
+-- Verify if all items selected for upgrade still exists (e.g. modded items)
 function verify_all_configs()
   local items = game.item_prototypes
   local verify_config = function (config)
     for k, entry in pairs (config) do
       local to = items[entry.to]
       local from = items[entry.from]
+      local changed = false
       if not (to and from) then
         log("Deleted invalid config: "..k..serpent.line(entry))
         entry[k] = nil
+        changed = true
       end
+      return changed
     end
   end
   for name, config in pairs (global.config) do
-    verify_config(config)
+    local changed = verify_config(config)
+    if changed then
+      UPGui.open_frame(game.players[name])
+      UPGui.open_frame(game.players[name])
+    end
   end
   for name, config in pairs (global["config-tmp"]) do
     verify_config(config)
