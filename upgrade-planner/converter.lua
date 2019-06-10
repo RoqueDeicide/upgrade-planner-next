@@ -1,3 +1,5 @@
+local UPEntityUpgrade = require("entity-upgrade")
+
 local upgrade_planner_converter = {}
 
 -- character table string
@@ -60,7 +62,7 @@ upgrade_planner_converter.dec = function(data)
 end
 
 upgrade_planner_converter.to_upgrade_planner = function(stack, config, player)
-  local hashmap = get_hashmap(config)
+  local hashmap = UPEntityUpgrade.get_hashmap(config)
   stack.set_stack {name = "upgrade-planner"}
   local idx = 1
   local error = false

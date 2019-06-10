@@ -1,7 +1,7 @@
-local UPconvert = require('upgrade-planner/converter')
+local UPConvert = require("upgrade-planner/converter")
+local UPUtility = require("utility")
 
 local upgrade_planner_gui = {}
-
 
 upgrade_planner_gui.init = function(player)
   local flow = mod_gui.get_button_flow(player)
@@ -15,15 +15,6 @@ upgrade_planner_gui.init = function(player)
       tooltip = {"upgrade-planner.button-tooltip"}
     }
     button.visible = true
-  end
-end
-
-local function find_gui_recursive(gui, name)
-  for k, child in pairs(gui.children) do
-    if child.name == name then
-      return child
-    end
-    find_gui_recursive(child, name)
   end
 end
 
@@ -173,9 +164,9 @@ local function open_frame(player)
   for i = 1, MAX_CONFIG_SIZE do
     local sprite = nil
     local tooltip = nil
-    local from = get_config_item(player, i, "from")
+    local from = UPUtility.get_config_item(player, i, "from")
     if from then
-      --sprite = "item/"..get_config_item(player, i, "from")
+      --sprite = "item/"..UPUtility.get_config_item(player, i, "from")
       tooltip = items[from].localised_name
     end
     local elem =
@@ -190,9 +181,9 @@ local function open_frame(player)
     elem.elem_value = from
     local sprite = nil
     local tooltip = nil
-    local to = get_config_item(player, i, "to")
+    local to = UPUtility.get_config_item(player, i, "to")
     if to then
-      --sprite = "item/"..get_config_item(player, i, "to")
+      --sprite = "item/"..UPUtility.get_config_item(player, i, "to")
       tooltip = items[to].localised_name
     end
     local elem =
@@ -238,7 +229,7 @@ local function open_frame(player)
   }
   button_grid.add {
     type = "sprite-button",
-    name = "upgrade_planner_configure_plan",
+    name = "upgrade_planner_convert_ingame",
     sprite = "item/upgrade-planner",
     tooltip = {"upgrade-planner.config-button-export-config"},
     style = mod_gui.button_style
@@ -249,8 +240,10 @@ local function open_frame(player)
     name = "upgrade_planner_frame_close",
     style = mod_gui.button_style
   }
-  gui_restore(player, storage_to_restore)
+  restore_config(player, storage_to_restore)
 end
+
+
 
 upgrade_planner_gui.open_frame_event = function(event)
   local player = game.players[event.player_index]
@@ -302,7 +295,7 @@ upgrade_planner_gui.import_export_config = function(event, import)
   textfield.style.minimal_height = 200
   textfield.style.maximal_height = 500
   if not import then
-    textfield.text = UPconvert.enc(serpent.dump(global.storage[player.name]))
+    textfield.text = UPConvert.enc(serpent.dump(global.storage[player.name]))
   end
   local flow = frame.add {type = "flow"}
   if import then
@@ -323,5 +316,55 @@ upgrade_planner_gui.import_export_config = function(event, import)
   player.opened = frame
   open_frame(player)
 end
+
+function restore_config(player, name)
+  local frame = player.gui.left.mod_gui_frame_flow.upgrade_planner_config_frame
+  if not frame then
+    return
+  end
+  if not global.storage[player.name] then
+    return
+  end
+  local storage = global.storage[player.name][name]
+  if not storage and name == "New storage" then
+    storage = {}
+  end
+  if not storage then
+    return
+  end
+
+  global["config-tmp"][player.name] = {}
+  local items = game.item_prototypes
+  local i = 0
+  local ruleset_grid = frame["upgrade_planner_ruleset_grid"]
+  local items = game.item_prototypes
+  for i = 1, MAX_CONFIG_SIZE do
+    if i > #storage then
+      global["config-tmp"][player.name][i] = {from = "", to = ""}
+    else
+      global["config-tmp"][player.name][i] = {
+        from = storage[i].from,
+        to = storage[i].to
+      }
+    end
+    local name = UPUtility.get_config_item(player, i, "from")
+    ruleset_grid["upgrade_planner_from_" .. i].elem_value = name
+    if name and name ~= "" then
+      ruleset_grid["upgrade_planner_from_" .. i].tooltip = items[name].localised_name
+    else
+      ruleset_grid["upgrade_planner_from_" .. i].tooltip = ""
+    end
+    local name = UPUtility.get_config_item(player, i, "to")
+    ruleset_grid["upgrade_planner_to_" .. i].elem_value = name
+    if name and name ~= "" then
+      ruleset_grid["upgrade_planner_to_" .. i].tooltip = items[name].localised_name
+    else
+      ruleset_grid["upgrade_planner_to_" .. i].tooltip = ""
+    end
+  end
+  global.config[player.name] = global["config-tmp"][player.name]
+end
+
+upgrade_planner_gui.restore_config = restore_config
 
 return upgrade_planner_gui
