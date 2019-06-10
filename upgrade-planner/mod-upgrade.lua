@@ -13,5 +13,12 @@ return {
     for player_name, index in pairs(temp_storage_index) do
       global.storage_index[game.players[player_name].index] = index
     end
+
+    local temp_storage = global.storage
+    global.storage = {}
+
+    for player_name, storage in pairs(temp_storage) do
+      global.storage[game.players[player_name].index] = storage
+    end
   end
 }

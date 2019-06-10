@@ -112,8 +112,8 @@ function gui_save_changes(player)
   if not global.storage then
     global.storage = {}
   end
-  if not global.storage[player.name] then
-    global.storage[player.name] = {}
+  if not global.storage[player.index] then
+    global.storage[player.index] = {}
   end
   local gui = player.gui.left.mod_gui_frame_flow.upgrade_planner_config_frame
   if not gui then
@@ -121,7 +121,7 @@ function gui_save_changes(player)
   end
   local drop_down = gui.upgrade_planner_storage_flow.children[1]
   local name = drop_down.get_item(global.storage_index[player.index])
-  global.storage[player.name][name] = global.current_config[player.index]
+  global.storage[player.index][name] = global.current_config[player.index]
 end
 
 --- Switch selected storage
@@ -135,7 +135,7 @@ function on_gui_selection_state_changed(event)
     global.storage_index[player.index] = element.selected_index
     local name = element.get_item(element.selected_index)
     UPGui.restore_config(player, name)
-    global.current_config[player.index] = global.storage[player.name][name]
+    global.current_config[player.index] = global.storage[player.index][name]
   end
 end
 
@@ -144,10 +144,10 @@ function oc_convert_ingame(event)
   local stack = player.cursor_stack
   if (stack and stack.valid and stack.valid_for_read and stack.is_upgrade_item) then
     config = UPConvert.from_upgrade_planner(stack)
-    global.storage[player.name]["Imported storage"] = config
+    global.storage[player.index]["Imported storage"] = config
     player.print({"upgrade-planner.import-sucessful"})
     local count = 0
-    for k, storage in pairs(global.storage[player.name]) do
+    for k, storage in pairs(global.storage[player.index]) do
       count = count + 1
     end
     global.storage_index[player.index] = count
@@ -195,15 +195,15 @@ function oc_import_config(event)
   if new_config then
     for name, config in pairs(new_config) do
       if name == "New storage" then
-        global.storage[player.name]["Imported storage"] = config
+        global.storage[player.index]["Imported storage"] = config
       else
-        global.storage[player.name][name] = config
+        global.storage[player.index][name] = config
       end
     end
     player.print({"upgrade-planner.import-sucessful"})
     player.opened.destroy()
     local count = 0
-    for k, storage in pairs(global.storage[player.name]) do
+    for k, storage in pairs(global.storage[player.index]) do
       count = count + 1
     end
     global.storage_index[player.index] = count
@@ -240,16 +240,16 @@ function oc_storage_confirm(event)
   if not global.storage then
     global.storage = {}
   end
-  if not global.storage[player.name] then
-    global.storage[player.name] = {}
+  if not global.storage[player.index] then
+    global.storage[player.index] = {}
   end
-  if global.storage[player.name][old_name] then
-    global.storage[player.name][new_name] = global.storage[player.name][old_name]
+  if global.storage[player.index][old_name] then
+    global.storage[player.index][new_name] = global.storage[player.index][old_name]
   else
-    global.storage[player.name][new_name] = {}
+    global.storage[player.index][new_name] = {}
   end
-  global.storage[player.name][old_name] = nil
-  --game.print(serpent.block(global.storage[player.name][new_name]))
+  global.storage[player.index][old_name] = nil
+  --game.print(serpent.block(global.storage[player.index][new_name]))
   children[1].set_item(index, new_name)
   children[1].selected_index = 0
   children[1].selected_index = index
@@ -283,7 +283,7 @@ function oc_storage_delete(event)
   local dropdown = children[1]
   local index = dropdown.selected_index
   local name = dropdown.get_item(index)
-  global.storage[player.name][name] = nil
+  global.storage[player.index][name] = nil
   if name ~= "New storage" then
     dropdown.remove_item(index)
   end

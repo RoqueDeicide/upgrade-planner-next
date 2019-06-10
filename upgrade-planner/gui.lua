@@ -66,13 +66,13 @@ local function open_frame(player)
   if not global.storage then
     global.storage = {}
   end
-  if not global.storage[player.name] then
-    global.storage[player.name] = {}
+  if not global.storage[player.index] then
+    global.storage[player.index] = {}
   end
-  for key, _ in pairs(global.storage[player.name]) do
+  for key, _ in pairs(global.storage[player.index]) do
     drop_down.add_item(key)
   end
-  if not global.storage[player.name]["New storage"] then
+  if not global.storage[player.index]["New storage"] then
     drop_down.add_item("New storage")
   end
   local items = drop_down.items
@@ -295,7 +295,7 @@ upgrade_planner_gui.import_export_config = function(event, import)
   textfield.style.minimal_height = 200
   textfield.style.maximal_height = 500
   if not import then
-    textfield.text = UPConvert.enc(serpent.dump(global.storage[player.name]))
+    textfield.text = UPConvert.enc(serpent.dump(global.storage[player.index]))
   end
   local flow = frame.add {type = "flow"}
   if import then
@@ -322,10 +322,10 @@ function restore_config(player, name)
   if not frame then
     return
   end
-  if not global.storage[player.name] then
+  if not global.storage[player.index] then
     return
   end
-  local storage = global.storage[player.name][name]
+  local storage = global.storage[player.index][name]
   if not storage and name == "New storage" then
     storage = {}
   end
