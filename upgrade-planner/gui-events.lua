@@ -297,6 +297,10 @@ function oc_storage_delete(event)
   return
 end
 
+function sc_default_bot(event)
+  global.default_bot[event.player_index] = event.element.state
+end
+
 upgrade_planner_gui_events.register = function()
   Event.register(
     defines.events.on_mod_item_opened,
@@ -314,6 +318,8 @@ upgrade_planner_gui_events.register = function()
   Gui.on_click("upgrade_planner_storage_confirm", oc_storage_confirm)
   Gui.on_click("upgrade_planner_storage_delete", oc_storage_delete)
   Gui.on_click("upgrade_planner_storage_rename", oc_storage_rename)
+
+  Gui.on_checked_state_changed("upgrade_planner_default_bot_checkbox", sc_default_bot)
 
   Event.register("upgrade-planner", UPGui.open_frame_event)
   Gui.on_click("upgrade_planner_config_button", UPGui.open_frame_event)

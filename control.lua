@@ -19,9 +19,11 @@ function global_init()
   global["config-tmp"] = {}
   global.storage = {}
   global.storage_index = {}
+  global.default_bot = {}
 end
 
 function player_init(player_idx)
+  global.default_bot[player_idx] = global.default_bot[player_idx] or false
   global.current_config[player_idx] = global.current_config[player_idx] or {}
   global.storage_index[player_idx] = global.storage_index[player_idx] or 1
   global.storage[player_idx] = global.storage[player_idx] or {}
@@ -94,6 +96,7 @@ Event.register(
   defines.events.on_pre_player_removed,
   function(event)
     local player = game.players[event.player_index]
+    global.default_bot[event.player_index] = nil
     global.current_config[event.player_index] = nil
     global.storage_index[player.index] = nil
     global.storage[player.index] = nil
@@ -109,8 +112,26 @@ UPGuiEvent.register()
 -----------------------------------------------
 -- Upgrade handling
 -----------------------------------------------
-Event.register(defines.events.on_player_selected_area, UPEntityUpgrade.upgrade_area_player)
-Event.register(defines.events.on_player_alt_selected_area, UPEntityUpgrade.upgrade_area_bot)
+Event.register(
+  defines.events.on_player_selected_area,
+  function(event)
+    if global.default_bot[event.player_index] then
+      UPEntityUpgrade.upgrade_area_bot(event)
+    else
+      UPEntityUpgrade.upgrade_area_player(event)
+    end
+  end
+)
+Event.register(
+  defines.events.on_player_alt_selected_area,
+  function(event)
+    if global.default_bot[event.player_index] then
+      UPEntityUpgrade.upgrade_area_player(event)
+    else
+      UPEntityUpgrade.upgrade_area_bot(event)
+    end
+  end
+)
 
 -----------------------------------------------
 -- Key bindings

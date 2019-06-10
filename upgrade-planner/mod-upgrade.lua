@@ -1,3 +1,5 @@
+local UPGui = require("upgrade-planner/gui")
+
 return {
   ["1.6.9"] = function()
     game.print("Upgrade to version 1.6.9 of Upgrade Planner")
@@ -19,6 +21,13 @@ return {
 
     for player_name, storage in pairs(temp_storage) do
       global.storage[game.players[player_name].index] = storage
+    end
+
+    global.default_bot = {}
+    for index, player in pairs(game.players) do
+      global.default_bot[index] = global.default_bot[index] or false
+      UPGui.open_frame(player)
+      UPGui.open_frame(player)
     end
   end
 }

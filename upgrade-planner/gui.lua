@@ -201,6 +201,15 @@ local function open_frame(player)
     }
   end
 
+  local default_bot =
+    frame.add {
+    type = "checkbox",
+    name = "upgrade_planner_default_bot_checkbox",
+    state = global.default_bot[player.index] or false,
+    caption = {"upgrade-planner.default-bot-upgrade-caption"},
+    tooltip = {"upgrade-planner.default-bot-upgrade-tooltip"}
+  }
+
   local button_grid =
     frame.add {
     type = "table",
@@ -242,8 +251,6 @@ local function open_frame(player)
   }
   restore_config(player, storage_to_restore)
 end
-
-
 
 upgrade_planner_gui.open_frame_event = function(event)
   local player = game.players[event.player_index]
