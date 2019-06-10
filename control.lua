@@ -189,3 +189,13 @@ Event.register(
     end
   end
 )
+
+Event.register(
+  defines.events.on_player_dropped_item,
+  function(event)
+    local stack = event.entity and event.entity.stack
+    if (stack.name == "upgrade-builder") then
+      event.entity.destroy()
+    end
+  end
+)
