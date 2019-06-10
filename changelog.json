@@ -1,4 +1,21 @@
 {
+  "1.7.0": {
+    "Date": "2019-06-10",
+    "Categories": {
+      "Features": [
+        "Add an (working) option to switch to default bot upgrading",
+        "Destroy dropped Upgrade-Planner items"
+      ],
+      "Changes": [
+        "Refactoring of the whole codebase",
+        "Removed legacy code unused in this extension",
+        "Switched from name to index as internal indices"
+      ],
+      "Bugfixes": [
+        "Fixed that configurations would remain in multiplayer when deleting old players"
+      ]
+    }
+  },
   "1.6.8": {
     "Date": "2019-06-04",
 
