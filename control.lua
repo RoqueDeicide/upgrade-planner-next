@@ -660,7 +660,7 @@ end
 
 Gui.on_click("upgrade_planner_configure_plan", handle_upgrade_planner)
 
-Event.register(Event.core_events.configuration_changed, function(event)
+Event.register(Event.core_events.on_configuration_changed, function(event)
   if not event or not event.mod_changes then
     return
   end
