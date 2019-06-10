@@ -1,5 +1,6 @@
 require("mod-gui")
 local Event = require("__stdlib__/stdlib/event/event")
+local Changes = require("__stdlib__/stdlib/event/changes")
 local UPGui = require("upgrade-planner/gui")
 local UPGuiEvent = require("upgrade-planner/gui-events")
 local UPEntityUpgrade = require("upgrade-planner/entity-upgrade")
@@ -11,6 +12,8 @@ in_range_check_is_annoying = true
 -----------------------------------------------
 -- Initialization
 -----------------------------------------------
+Changes.register("mod_versions", "upgrade-planner/mod-upgrade")
+
 function global_init()
   global.current_config = {}
   global["config-tmp"] = {}
