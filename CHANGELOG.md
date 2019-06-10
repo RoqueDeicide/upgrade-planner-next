@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.7.1
+
+### Features
+
+- Export to In-Game upgrade planner no exports half pairs
+
+### Bugfixes
+
+- Fix crash on imbalanced pairs more: [Issue #3](https://github.com/Roang-zero1/upgrade-planner-next/issues/3)
+
+---
+
 ## 1.7.0
 
 ### Features

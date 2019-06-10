@@ -1,4 +1,18 @@
 {
+  "1.7.1": {
+    "Date": "2019-06-11",
+    "Categories": {
+      "Features": ["Export to In-Game upgrade planner no exports half pairs"],
+      "Bugfixes": [
+        {
+          "change": "Fix crash on imbalanced pairs",
+          "more": {
+            "Issue #3": "https://github.com/Roang-zero1/upgrade-planner-next/issues/3"
+          }
+        }
+      ]
+    }
+  },
   "1.7.0": {
     "Date": "2019-06-10",
     "Categories": {
