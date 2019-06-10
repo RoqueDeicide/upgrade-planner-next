@@ -21,12 +21,17 @@ function global_init()
   global.storage_index = {}
 end
 
+function player_init(player_idx)
+  global.current_config[player_idx] = global.current_config[player_idx] or {}
+end
+
 Event.register(
   Event.core_events.init,
   function()
     global_init()
-    for k, player in pairs(game.players) do
+    for player_idx, player in pairs(game.players) do
       UPGui.init(player)
+      player_init(player_idx)
     end
   end
 )
@@ -79,6 +84,15 @@ Event.register(
   function(event)
     local player = game.players[event.player_index]
     UPGui.init(player)
+    player_init(event.player_index)
+  end
+)
+
+Event.register(
+  defines.events.on_player_removed,
+  function(event)
+    local player = game.players[event.player_index]
+    global.current_config.remove(player_idx)
   end
 )
 
