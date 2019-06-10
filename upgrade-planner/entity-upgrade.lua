@@ -7,7 +7,7 @@ upgrade_planner_entity_upgrade.upgrade_area_player = function(event)
   --If its a upgrade builder
 
   local player = game.players[event.player_index]
-  local config = global.current_config[player.name]
+  local config = global.current_config[player.index]
   if config == nil then
     return
   end
@@ -310,7 +310,7 @@ upgrade_planner_entity_upgrade.upgrade_area_bot = function(event)
     return
   end
   local player = game.players[event.player_index]
-  local config = global.current_config[player.name]
+  local config = global.current_config[player.index]
   if not config then
     return
   end
@@ -473,7 +473,7 @@ upgrade_planner_entity_upgrade.upgrade_blueprint = function(event)
     return
   end
 
-  local config = global.current_config[player.name]
+  local config = global.current_config[player.index]
   if not config then
     return
   end

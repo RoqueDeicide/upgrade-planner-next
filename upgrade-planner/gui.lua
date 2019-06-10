@@ -29,16 +29,16 @@ local function open_frame(player)
     return
   end
 
-  global.current_config[player.name] = global.current_config[player.name] or {}
+  global.current_config[player.index] = global.current_config[player.index] or {}
   global["config-tmp"][player.name] = {}
   local i = 0
   for i = 1, MAX_CONFIG_SIZE do
-    if i > #global.current_config[player.name] then
+    if i > #global.current_config[player.index] then
       global["config-tmp"][player.name][i] = {from = "", to = ""}
     else
       global["config-tmp"][player.name][i] = {
-        from = global.current_config[player.name][i].from,
-        to = global.current_config[player.name][i].to
+        from = global.current_config[player.index][i].from,
+        to = global.current_config[player.index][i].to
       }
     end
   end
@@ -362,7 +362,7 @@ function restore_config(player, name)
       ruleset_grid["upgrade_planner_to_" .. i].tooltip = ""
     end
   end
-  global.current_config[player.name] = global["config-tmp"][player.name]
+  global.current_config[player.index] = global["config-tmp"][player.name]
 end
 
 upgrade_planner_gui.restore_config = restore_config
