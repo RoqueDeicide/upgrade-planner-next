@@ -62,23 +62,26 @@ upgrade_planner_converter.dec = function(data)
 end
 
 upgrade_planner_converter.to_upgrade_planner = function(stack, config, player)
-  local hashmap = UPEntityUpgrade.get_hashmap(config)
+  local entities = game.entity_prototypes
   stack.set_stack {name = "upgrade-planner"}
   local idx = 1
   local error = false
-  for item, configmap in pairs(hashmap) do
-    local from_entity = nil
-    if configmap.item_from ~= nil then
-      from_entity = game.entity_prototypes[configmap.item_from]
-      stack.set_mapper(idx, "from", {type = "entity", name = from_entity.name})
+  for item, entry in pairs(config) do
+    local entity_from = entities[entry.from]
+    local entity_to = entities[entry.to]
+    if entity_from then
+      stack.set_mapper(idx, "from", {type = "entity", name = entity_from.name})
     end
-    if configmap.item_to ~= nil then
-      local to_entity = game.entity_prototypes[configmap.item_to]
-      if from_entity.fast_replaceable_group == to_entity.fast_replaceable_group then
-        stack.set_mapper(idx, "to", {type = "entity", name = to_entity.name})
+    if entity_to then
+      if entity_from then
+        if entity_from.fast_replaceable_group == entity_to.fast_replaceable_group then
+          stack.set_mapper(idx, "to", {type = "entity", name = entity_to.name})
+        else
+          player.print({"upgrade-planner.partial-upgrade-planner-export", entity_from.localised_name, entity_to.localised_name})
+          stack.set_mapper(idx, "from", nil)
+        end
       else
-        player.print({"upgrade-planner.partial-upgrade-planner-export", from_entity.localised_name, to_entity.localised_name})
-        stack.set_mapper(idx, "from", nil)
+        stack.set_mapper(idx, "to", {type = "entity", name = entity_to.name})
       end
     end
     idx = idx + 1
