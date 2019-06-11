@@ -54,18 +54,18 @@ Event.register(
 function verify_all_configs()
   local items = game.item_prototypes
   local verify_config = function(config)
+    local changed = false
     for k, entry in pairs(config) do
       local to = items[entry.to]
       local from = items[entry.from]
-      local changed = false
       if not (to and from) then
         log("Deleted invalid config: " .. k .. serpent.line(entry))
         entry[k] = nil
         changed = true
       end
+    end
       return changed
     end
-  end
   for name, config in pairs(global.current_config) do
     local changed = verify_config(config)
     if changed then
