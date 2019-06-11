@@ -5,5 +5,7 @@ workflow "New workflow" {
 
 action "Roang-zero1/factorio-mod-actions" {
   uses = "Roang-zero1/factorio-mod-actions/luacheck@master"
-  args = "Test"
+  env {
+    LUACHECKRC_URL = "https://raw.githubusercontent.com/Nexela/Factorio-luacheckrc/0.17/.luacheckrc"
+    }
 }
