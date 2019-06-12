@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.7.2
+
+### Bugfixes
+
+- Fix incorrect config valiation
+
+### Changes
+
+- Add code linting and fix linting errors
+- Use CI environment to ensure consistent quality
+
+---
+
 ## 1.7.1
 
 ### Features
