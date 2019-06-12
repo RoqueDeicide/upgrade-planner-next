@@ -1,45 +1,39 @@
 workflow "New workflow" {
-  on       = "push"
-
+  on = "push"
   resolves = [
-    "release"
+    "release",
   ]
 }
 
 action "luacheck" {
   uses = "Roang-zero1/factorio-mod-actions/luacheck@master"
-
-  env  = {
+  env = {
     LUACHECKRC_URL = "https://raw.githubusercontent.com/Nexela/Factorio-luacheckrc/0.17/.luacheckrc"
   }
 }
 
 action "package" {
-  uses  = "Roang-zero1/factorio-mod-actions/package@master"
-
+  uses = "Roang-zero1/factorio-mod-actions/package@master"
   needs = [
-    "luacheck"
+    "luacheck",
   ]
 }
 
 action "Release Filter" {
-  uses  = "actions/bin/filter@3c0b4f0e63ea54ea5df2914b4fabf383368cd0da"
-  args  = "branch release"
-
+  uses = "actions/bin/filter@3c0b4f0e63ea54ea5df2914b4fabf383368cd0da"
+  args = "branch release"
   needs = [
-    "package"
+    "package",
   ]
 }
 
 action "release" {
-  uses    = "Roang-zero1/factorio-mod-actions/release@master"
-
-  needs   = [
-    "Release Filter"
+  uses = "Roang-zero1/factorio-mod-actions/release@master"
+  needs = [
+    "Release Filter",
   ]
-
   secrets = [
     "FACTORIO_USER",
-    "FACTORIO_PASSWORD"
+    "FACTORIO_PASSWORD",
   ]
 }
