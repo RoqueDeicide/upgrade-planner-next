@@ -1,5 +1,11 @@
 # Ignore release files
 *.zip
+.build
+dist
+cookiejar.txt
+
+# Is downloaded via CI
+.luacheckrc
 
 # Compiled Lua sources
 luac.out

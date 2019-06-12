@@ -1,34 +1,6 @@
 local upgrade_planner_entity_upgrade = {}
 
-upgrade_planner_entity_upgrade.upgrade_area_player = function(event)
-  if event.item ~= "upgrade-builder" then
-    return
-  end
-  --If its a upgrade builder
-
-  local player = game.players[event.player_index]
-  local config = global.current_config[player.index]
-  if config == nil then
-    return
-  end
-  local hashmap = get_hashmap(config)
-  local surface = player.surface
-  global.temporary_ignore = {}
-  for k, belt in pairs(event.entities) do --Get the items that are set to be upgraded
-    if belt.valid then
-      local upgrade = hashmap[belt.name]
-      if belt.get_module_inventory() then
-        player_upgrade_modules(player, belt.get_module_inventory(), hashmap, belt)
-      end
-      if upgrade ~= nil and upgrade ~= "" then
-        player_upgrade(player, belt, upgrade, true)
-      end
-    end
-  end
-  global.temporary_ignore = nil
-end
-
-function get_hashmap(config)
+local function get_hashmap(config)
   local items = game.item_prototypes
   local hashmap = {}
   for k, entry in pairs(config) do
@@ -58,10 +30,46 @@ function get_hashmap(config)
   end
   return hashmap
 end
-
 upgrade_planner_entity_upgrade.get_hashmap = get_hashmap
 
-function player_upgrade_modules(player, inventory, map, owner)
+local function get_recipe(owner)
+  local recipe
+  if not owner.valid then
+    return
+  end
+  if owner.type == "beacon" then
+    recipe = game.recipe_prototypes["stone-furnace"] --Some dummy recipe to get correct limitation
+  elseif owner.type == "assembling-machine" or owner.type == "furnace" then
+    recipe = owner.get_recipe() or "iron-gear-wheel"
+  end
+  return recipe
+end
+
+local function check_module_eligibility(name, recipe)
+  if not recipe then
+    return true
+  end
+  local item = game.item_prototypes[name]
+  if not item then
+    return false
+  end
+  local effects = item.module_effects
+  if not effects then
+    return true
+  end
+  if not effects.productivity then
+    return true
+  end
+  if not item.limitations then
+    return true
+  end
+  if item.limitations[recipe.name] then
+    return true
+  end
+  return false
+end
+
+local function player_upgrade_modules(player, inventory, map, owner)
   for k = 1, #inventory do
     local slot = inventory[k]
     if slot.valid and slot.valid_for_read then
@@ -88,31 +96,7 @@ function player_upgrade_modules(player, inventory, map, owner)
   end
 end
 
-function check_module_eligibility(name, recipe)
-  if not recipe then
-    return true
-  end
-  local item = game.item_prototypes[name]
-  if not item then
-    return false
-  end
-  local effects = item.module_effects
-  if not effects then
-    return true
-  end
-  if not effects.productivity then
-    return true
-  end
-  if not item.limitations then
-    return true
-  end
-  if item.limitations[recipe.name] then
-    return true
-  end
-  return false
-end
-
-function player_upgrade(player, belt, upgrade, bool)
+local function player_upgrade(player, belt, upgrade, bool)
   if not belt then
     return
   end
@@ -129,7 +113,6 @@ function player_upgrade(player, belt, upgrade, bool)
     local d = belt.direction
     local f = belt.force
     local p = belt.position
-    local n = belt.name
     local new_item
     script.raise_event(defines.events.on_pre_player_mined_item, {player_index = player.index, entity = belt})
     if belt.type == "underground-belt" then
@@ -247,7 +230,6 @@ function player_upgrade(player, belt, upgrade, bool)
       belt.destroy()
       player.cursor_stack.build_blueprint {surface = surface, force = f, position = {0, 0}}
       local ghost = surface.find_entities_filtered {area = a, name = "entity-ghost"}
-      player.remove_item {name = upgrade.item_from, count = count}
       local p_x = player.position.x
       local p_y = player.position.y
       while ghost[1] ~= nil do
@@ -275,7 +257,6 @@ function player_upgrade(player, belt, upgrade, bool)
           end
         end
       end
-      inventories = nil
       local proxy = surface.find_entities_filtered {area = a, name = "item-request-proxy"}
       if proxy[1] ~= nil then
         proxy[1].destroy()
@@ -304,32 +285,34 @@ function player_upgrade(player, belt, upgrade, bool)
   end
 end
 
-upgrade_planner_entity_upgrade.upgrade_area_bot = function(event)
-  --this is a lot simpler... but less cool
+upgrade_planner_entity_upgrade.upgrade_area_player = function(event)
   if event.item ~= "upgrade-builder" then
     return
   end
+  --If its a upgrade builder
+
   local player = game.players[event.player_index]
   local config = global.current_config[player.index]
-  if not config then
+  if config == nil then
     return
   end
   local hashmap = get_hashmap(config)
-  local surface = player.surface
-  for k, entity in pairs(event.entities) do
-    if entity.valid then
-      local upgrade = hashmap[entity.name]
-      if upgrade and upgrade ~= "" then
-        entity.order_upgrade({force = entity.force, target = upgrade["entity_to"]})
+  global.temporary_ignore = {}
+  for k, belt in pairs(event.entities) do --Get the items that are set to be upgraded
+    if belt.valid then
+      local upgrade = hashmap[belt.name]
+      if belt.get_module_inventory() then
+        player_upgrade_modules(player, belt.get_module_inventory(), hashmap, belt)
       end
-      if entity.valid and entity.get_module_inventory() then
-        robot_upgrade_modules(entity.get_module_inventory(), hashmap, entity)
+      if upgrade ~= nil and upgrade ~= "" then
+        player_upgrade(player, belt, upgrade, true)
       end
     end
   end
+  global.temporary_ignore = nil
 end
 
-function robot_upgrade_modules(inventory, map, owner)
+local function robot_upgrade_modules(inventory, map, owner)
   if not owner then
     return
   end
@@ -374,29 +357,40 @@ function robot_upgrade_modules(inventory, map, owner)
   end
 end
 
-function get_recipe(owner)
-  local recipe
-  if not owner.valid then
+upgrade_planner_entity_upgrade.upgrade_area_bot = function(event)
+  --this is a lot simpler... but less cool
+  if event.item ~= "upgrade-builder" then
     return
   end
-  if owner.type == "beacon" then
-    recipe = game.recipe_prototypes["stone-furnace"] --Some dummy recipe to get correct limitation
-  elseif owner.type == "assembling-machine" or owner.type == "furnace" then
-    recipe = owner.get_recipe() or "iron-gear-wheel"
+  local player = game.players[event.player_index]
+  local config = global.current_config[player.index]
+  if not config then
+    return
   end
-  return recipe
+  local hashmap = get_hashmap(config)
+  for k, entity in pairs(event.entities) do
+    if entity.valid then
+      local upgrade = hashmap[entity.name]
+      if upgrade and upgrade ~= "" then
+        entity.order_upgrade({force = entity.force, target = upgrade["entity_to"]})
+      end
+      if entity.valid and entity.get_module_inventory() then
+        robot_upgrade_modules(entity.get_module_inventory(), hashmap, entity)
+      end
+    end
+  end
 end
 
-function update_blueprint_entities(stack, hashmap)
+local function update_blueprint_entities(stack, hashmap)
   if not (stack and stack.valid and stack.valid_for_read and stack.is_blueprint_setup()) then
     return
   end
   local entities = stack.get_blueprint_entities()
   if entities then
     for k, entity in pairs(entities) do
-      local new = hashmap[entity.name]
-      if new and new.entity_to then
-        entities[k].name = new.entity_to
+      local new_entity = hashmap[entity.name]
+      if new_entity and new_entity.entity_to then
+        entities[k].name = new_entity.entity_to
       end
       if entity.items then
         local new_items = {}
@@ -433,7 +427,7 @@ function update_blueprint_entities(stack, hashmap)
       local items_to_place = prototype.items_to_place_this
       local item = nil
       if items_to_place then
-        for name, to_place in pairs(items_to_place) do
+        for name, _ in pairs(items_to_place) do
           item = hashmap[name]
           if item and item.item_to then
             break
@@ -445,7 +439,7 @@ function update_blueprint_entities(stack, hashmap)
         if tile_item then
           local result = tile_item.place_as_tile_result
           if result then
-            new_tile = tile_prototypes[result.result.name]
+            local new_tile = tile_prototypes[result.result.name]
             if new_tile and new_tile.can_be_part_of_blueprint then
               tiles[k].name = result.result.name
             end
