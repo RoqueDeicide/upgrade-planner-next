@@ -1,9 +1,9 @@
-local UPEntityUpgrade = require("entity-upgrade")
+local globals = require("globals")
 
 local upgrade_planner_converter = {}
 
 -- character table string
-local b = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
+local chartable = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
 
 -- encoding
 upgrade_planner_converter.enc = function(data)
@@ -26,21 +26,21 @@ upgrade_planner_converter.enc = function(data)
       for i = 1, 6 do
         c = c + (x:sub(i, i) == "1" and 2 ^ (6 - i) or 0)
       end
-      return b:sub(c + 1, c + 1)
+      return chartable:sub(c + 1, c + 1)
     end
   ) .. ({"", "==", "="})[#data % 3 + 1])
 end
 
 -- decoding
 upgrade_planner_converter.dec = function(data)
-  data = string.gsub(data, "[^" .. b .. "=]", "")
+  data = string.gsub(data, "[^" .. chartable .. "=]", "")
   return (data:gsub(
     ".",
     function(x)
       if (x == "=") then
         return ""
       end
-      local r, f = "", (b:find(x) - 1)
+      local r, f = "", (chartable:find(x) - 1)
       for i = 6, 1, -1 do
         r = r .. (f % 2 ^ i - f % 2 ^ (i - 1) > 0 and "1" or "0")
       end
@@ -65,8 +65,7 @@ upgrade_planner_converter.to_upgrade_planner = function(stack, config, player)
   local entities = game.entity_prototypes
   stack.set_stack {name = "upgrade-planner"}
   local idx = 1
-  local error = false
-  for item, entry in pairs(config) do
+  for _, entry in pairs(config) do
     local entity_from = entities[entry.from]
     local entity_to = entities[entry.to]
     if entity_from then
@@ -77,7 +76,9 @@ upgrade_planner_converter.to_upgrade_planner = function(stack, config, player)
         if entity_from.fast_replaceable_group == entity_to.fast_replaceable_group then
           stack.set_mapper(idx, "to", {type = "entity", name = entity_to.name})
         else
-          player.print({"upgrade-planner.partial-upgrade-planner-export", entity_from.localised_name, entity_to.localised_name})
+          player.print(
+            {"upgrade-planner.partial-upgrade-planner-export", entity_from.localised_name, entity_to.localised_name}
+          )
           stack.set_mapper(idx, "from", nil)
         end
       else
@@ -90,7 +91,7 @@ end
 
 upgrade_planner_converter.from_upgrade_planner = function(stack)
   local config = {}
-  for i = 1, MAX_STORAGE_SIZE, 1 do
+  for i = 1, globals.MAX_STORAGE_SIZE, 1 do
     local from = stack.get_mapper(i, "from").name or ""
     local to = stack.get_mapper(i, "to").name or ""
 

@@ -1,20 +1,16 @@
-require("mod-gui")
+local mod_gui = require("mod-gui")
 local Event = require("__stdlib__/stdlib/event/event")
 local Changes = require("__stdlib__/stdlib/event/changes")
 local UPGui = require("upgrade-planner/gui")
 local UPGuiEvent = require("upgrade-planner/gui-events")
 local UPEntityUpgrade = require("upgrade-planner/entity-upgrade")
 
-MAX_CONFIG_SIZE = 24
-MAX_STORAGE_SIZE = 12
-in_range_check_is_annoying = true
-
 -----------------------------------------------
 -- Initialization
 -----------------------------------------------
 Changes.register("mod_versions", "upgrade-planner/mod-upgrade")
 
-function global_init()
+local function global_init()
   global.current_config = {}
   global["config-tmp"] = {}
   global.storage = {}
@@ -22,7 +18,7 @@ function global_init()
   global.default_bot = {}
 end
 
-function player_init(player_idx)
+local function player_init(player_idx)
   global.default_bot[player_idx] = global.default_bot[player_idx] or false
   global.current_config[player_idx] = global.current_config[player_idx] or {}
   global.storage_index[player_idx] = global.storage_index[player_idx] or 1
@@ -40,6 +36,39 @@ Event.register(
   end
 )
 
+-- Verify if all items selected for upgrade still exists (e.g. modded items)
+local function verify_all_configs()
+  local items = game.item_prototypes
+  local verify_config = function(config)
+    local changed = false
+    for k, entry in pairs(config) do
+      local to = items[entry.to]
+      local from = items[entry.from]
+      if not (to and from) then
+        log("Deleted invalid config: " .. k .. serpent.line(entry))
+        entry[k] = nil
+        changed = true
+      end
+    end
+    return changed
+  end
+  for name, config in pairs(global.current_config) do
+    local changed = verify_config(config)
+    if changed then
+      UPGui.open_frame(game.players[name])
+      UPGui.open_frame(game.players[name])
+    end
+  end
+  for _, config in pairs(global["config-tmp"]) do
+    verify_config(config)
+  end
+  for _, storage in pairs(global.storage) do
+    for _, config in pairs(storage) do
+      verify_config(config)
+    end
+  end
+end
+
 Event.register(
   Event.core_events.on_configuration_changed,
   function(event)
@@ -49,39 +78,6 @@ Event.register(
     verify_all_configs()
   end
 )
-
--- Verify if all items selected for upgrade still exists (e.g. modded items)
-function verify_all_configs()
-  local items = game.item_prototypes
-  local verify_config = function(config)
-    for k, entry in pairs(config) do
-      local to = items[entry.to]
-      local from = items[entry.from]
-      local changed = false
-      if not (to and from) then
-        log("Deleted invalid config: " .. k .. serpent.line(entry))
-        entry[k] = nil
-        changed = true
-      end
-      return changed
-    end
-  end
-  for name, config in pairs(global.current_config) do
-    local changed = verify_config(config)
-    if changed then
-      UPGui.open_frame(game.players[name])
-      UPGui.open_frame(game.players[name])
-    end
-  end
-  for name, config in pairs(global["config-tmp"]) do
-    verify_config(config)
-  end
-  for name, storage in pairs(global.storage) do
-    for storage_name, config in pairs(storage) do
-      verify_config(config)
-    end
-  end
-end
 
 Event.register(
   defines.events.on_player_joined_game,
@@ -97,8 +93,8 @@ Event.register(
   function(event)
     global.default_bot[event.player_index] = nil
     global.current_config[event.player_index] = nil
-    global.storage_index[player.index] = nil
-    global.storage[player.index] = nil
+    global.storage_index[event.player_index] = nil
+    global.storage[event.player_index] = nil
   end
 )
 

@@ -1,7 +1,55 @@
+local mod_gui = require("mod-gui")
 local UPConvert = require("upgrade-planner/converter")
 local UPUtility = require("utility")
+local UPGlobals = require("globals")
 
 local upgrade_planner_gui = {}
+
+local function restore_config(player, storage_name)
+  local frame = player.gui.left.mod_gui_frame_flow.upgrade_planner_config_frame
+  if not frame then
+    return
+  end
+  if not global.storage[player.index] then
+    return
+  end
+  local storage = global.storage[player.index][storage_name]
+  if not storage and storage_name == "New storage" then
+    storage = {}
+  end
+  if not storage then
+    return
+  end
+
+  global["config-tmp"][player.name] = {}
+  local items = game.item_prototypes
+  local ruleset_grid = frame["upgrade_planner_ruleset_grid"]
+  for i = 1, UPGlobals.MAX_CONFIG_SIZE do
+    if i > #storage then
+      global["config-tmp"][player.name][i] = {from = "", to = ""}
+    else
+      global["config-tmp"][player.name][i] = {
+        from = storage[i].from,
+        to = storage[i].to
+      }
+    end
+    local from_name = UPUtility.get_config_item(player, i, "from")
+    ruleset_grid["upgrade_planner_from_" .. i].elem_value = from_name
+    if from_name and from_name ~= "" then
+      ruleset_grid["upgrade_planner_from_" .. i].tooltip = items[from_name].localised_name
+    else
+      ruleset_grid["upgrade_planner_from_" .. i].tooltip = ""
+    end
+    local to_name = UPUtility.get_config_item(player, i, "to")
+    ruleset_grid["upgrade_planner_to_" .. i].elem_value = to_name
+    if to_name and to_name ~= "" then
+      ruleset_grid["upgrade_planner_to_" .. i].tooltip = items[to_name].localised_name
+    else
+      ruleset_grid["upgrade_planner_to_" .. i].tooltip = ""
+    end
+  end
+  global.current_config[player.index] = global["config-tmp"][player.name]
+end
 
 upgrade_planner_gui.init = function(player)
   local flow = mod_gui.get_button_flow(player)
@@ -31,8 +79,8 @@ local function open_frame(player)
 
   global.current_config[player.index] = global.current_config[player.index] or {}
   global["config-tmp"][player.name] = {}
-  local i = 0
-  for i = 1, MAX_CONFIG_SIZE do
+
+  for i = 1, UPGlobals.MAX_CONFIG_SIZE do
     if i > #global.current_config[player.index] then
       global["config-tmp"][player.name][i] = {from = "", to = ""}
     else
@@ -75,8 +123,8 @@ local function open_frame(player)
   if not global.storage[player.index]["New storage"] then
     drop_down.add_item("New storage")
   end
-  local items = drop_down.items
-  local index = math.min(global.storage_index[player.index], #items)
+  local options = drop_down.items
+  local index = math.min(global.storage_index[player.index], #options)
   index = math.max(index, 1)
   drop_down.selected_index = index
   global.storage_index[player.index] = index
@@ -141,12 +189,12 @@ local function open_frame(player)
   local ruleset_grid =
     frame.add {
     type = "table",
-    column_count = (MAX_CONFIG_SIZE / 6 - MAX_CONFIG_SIZE % 6) * 3,
+    column_count = (UPGlobals.MAX_CONFIG_SIZE / 6 - UPGlobals.MAX_CONFIG_SIZE % 6) * 3,
     name = "upgrade_planner_ruleset_grid",
     style = "slot_table"
   }
 
-  for i = 1, MAX_CONFIG_SIZE / 6 do
+  for i = 1, UPGlobals.MAX_CONFIG_SIZE / 6 do
     ruleset_grid.add {
       type = "label",
       caption = {"upgrade-planner.config-header-1"}
@@ -161,15 +209,14 @@ local function open_frame(player)
   end
 
   local items = game.item_prototypes
-  for i = 1, MAX_CONFIG_SIZE do
-    local sprite = nil
+  for i = 1, UPGlobals.MAX_CONFIG_SIZE do
     local tooltip = nil
     local from = UPUtility.get_config_item(player, i, "from")
     if from then
       --sprite = "item/"..UPUtility.get_config_item(player, i, "from")
       tooltip = items[from].localised_name
     end
-    local elem =
+    local choose_elem_button_from =
       ruleset_grid.add {
       type = "choose-elem-button",
       name = "upgrade_planner_from_" .. i,
@@ -178,15 +225,14 @@ local function open_frame(player)
       elem_type = "item",
       tooltip = tooltip
     }
-    elem.elem_value = from
-    local sprite = nil
-    local tooltip = nil
+    choose_elem_button_from.elem_value = from
+    tooltip = nil
     local to = UPUtility.get_config_item(player, i, "to")
     if to then
       --sprite = "item/"..UPUtility.get_config_item(player, i, "to")
       tooltip = items[to].localised_name
     end
-    local elem =
+    local choose_elem_button_to =
       ruleset_grid.add {
       type = "choose-elem-button",
       name = "upgrade_planner_to_" .. i,
@@ -195,14 +241,13 @@ local function open_frame(player)
       elem_type = "item",
       tooltip = tooltip
     }
-    elem.elem_value = to
+    choose_elem_button_to.elem_value = to
     ruleset_grid.add {
       type = "label"
     }
   end
 
-  local default_bot =
-    frame.add {
+  frame.add {
     type = "checkbox",
     name = "upgrade_planner_default_bot_checkbox",
     state = global.default_bot[player.index] or false,
@@ -322,54 +367,6 @@ upgrade_planner_gui.import_export_config = function(event, import)
   frame.visible = true
   player.opened = frame
   open_frame(player)
-end
-
-function restore_config(player, name)
-  local frame = player.gui.left.mod_gui_frame_flow.upgrade_planner_config_frame
-  if not frame then
-    return
-  end
-  if not global.storage[player.index] then
-    return
-  end
-  local storage = global.storage[player.index][name]
-  if not storage and name == "New storage" then
-    storage = {}
-  end
-  if not storage then
-    return
-  end
-
-  global["config-tmp"][player.name] = {}
-  local items = game.item_prototypes
-  local i = 0
-  local ruleset_grid = frame["upgrade_planner_ruleset_grid"]
-  local items = game.item_prototypes
-  for i = 1, MAX_CONFIG_SIZE do
-    if i > #storage then
-      global["config-tmp"][player.name][i] = {from = "", to = ""}
-    else
-      global["config-tmp"][player.name][i] = {
-        from = storage[i].from,
-        to = storage[i].to
-      }
-    end
-    local name = UPUtility.get_config_item(player, i, "from")
-    ruleset_grid["upgrade_planner_from_" .. i].elem_value = name
-    if name and name ~= "" then
-      ruleset_grid["upgrade_planner_from_" .. i].tooltip = items[name].localised_name
-    else
-      ruleset_grid["upgrade_planner_from_" .. i].tooltip = ""
-    end
-    local name = UPUtility.get_config_item(player, i, "to")
-    ruleset_grid["upgrade_planner_to_" .. i].elem_value = name
-    if name and name ~= "" then
-      ruleset_grid["upgrade_planner_to_" .. i].tooltip = items[name].localised_name
-    else
-      ruleset_grid["upgrade_planner_to_" .. i].tooltip = ""
-    end
-  end
-  global.current_config[player.index] = global["config-tmp"][player.name]
 end
 
 upgrade_planner_gui.restore_config = restore_config

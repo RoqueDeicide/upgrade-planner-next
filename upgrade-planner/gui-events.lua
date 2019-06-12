@@ -7,7 +7,7 @@ local UPUtility = require("utility")
 
 local upgrade_planner_gui_events = {}
 
-function on_gui_closed(event)
+local function on_gui_closed(event)
   local player = game.players[event.player_index]
   local element = event.element
   if not element then
@@ -24,21 +24,36 @@ function on_gui_closed(event)
   end
 end
 
-function on_gui_elem_changed(event)
-  local element = event.element
-  local player = game.players[event.player_index]
-  if not string.find(element.name, "upgrade_planner_") then
-    return
-  end
-  local type, index = string.match(element.name, "upgrade_planner_(%a+)_(%d+)")
-  if type and index then
-    if type == "from" or type == "to" then
-      gui_set_rule(player, type, tonumber(index), element)
+local function gui_save_changes(player)
+  -- Saving changes consists in:
+  --   1. copying config-tmp to config
+  --   2. removing config-tmp
+
+  if global["config-tmp"][player.name] then
+    global.current_config[player.index] = {}
+    for i = 1, #global["config-tmp"][player.name] do
+      global.current_config[player.index][i] = {
+        from = global["config-tmp"][player.name][i].from,
+        to = global["config-tmp"][player.name][i].to
+      }
     end
   end
+  if not global.storage then
+    global.storage = {}
+  end
+  if not global.storage[player.index] then
+    global.storage[player.index] = {}
+  end
+  local gui = player.gui.left.mod_gui_frame_flow.upgrade_planner_config_frame
+  if not gui then
+    return
+  end
+  local drop_down = gui.upgrade_planner_storage_flow.children[1]
+  local name = drop_down.get_item(global.storage_index[player.index])
+  global.storage[player.index][name] = global.current_config[player.index]
 end
 
-function gui_set_rule(player, type, index, element)
+local function gui_set_rule(player, type, index, element)
   local items = game.item_prototypes
   local name = element.elem_value
   local frame = player.gui.left.mod_gui_frame_flow.upgrade_planner_config_frame
@@ -56,7 +71,6 @@ function gui_set_rule(player, type, index, element)
     return
   end
   local opposite = "from"
-  local i = 0
   if type == "from" then
     opposite = "to"
     for i = 1, #storage do
@@ -94,38 +108,22 @@ function gui_set_rule(player, type, index, element)
   gui_save_changes(player)
 end
 
-function gui_save_changes(player)
-  -- Saving changes consists in:
-  --   1. copying config-tmp to config
-  --   2. removing config-tmp
-
-  if global["config-tmp"][player.name] then
-    local i = 0
-    global.current_config[player.index] = {}
-    for i = 1, #global["config-tmp"][player.name] do
-      global.current_config[player.index][i] = {
-        from = global["config-tmp"][player.name][i].from,
-        to = global["config-tmp"][player.name][i].to
-      }
-    end
-  end
-  if not global.storage then
-    global.storage = {}
-  end
-  if not global.storage[player.index] then
-    global.storage[player.index] = {}
-  end
-  local gui = player.gui.left.mod_gui_frame_flow.upgrade_planner_config_frame
-  if not gui then
+local function on_gui_elem_changed(event)
+  local element = event.element
+  local player = game.players[event.player_index]
+  if not string.find(element.name, "upgrade_planner_") then
     return
   end
-  local drop_down = gui.upgrade_planner_storage_flow.children[1]
-  local name = drop_down.get_item(global.storage_index[player.index])
-  global.storage[player.index][name] = global.current_config[player.index]
+  local type, index = string.match(element.name, "upgrade_planner_(%a+)_(%d+)")
+  if type and index then
+    if type == "from" or type == "to" then
+      gui_set_rule(player, type, tonumber(index), element)
+    end
+  end
 end
 
 --- Switch selected storage
-function on_gui_selection_state_changed(event)
+local function on_gui_selection_state_changed(event)
   local element = event.element
   local player = game.players[event.player_index]
   if not string.find(element.name, "upgrade_planner_") then
@@ -139,18 +137,18 @@ function on_gui_selection_state_changed(event)
   end
 end
 
-function oc_convert_ingame(event)
+local function oc_convert_ingame(event)
   local player = game.players[event.player_index]
   local stack = player.cursor_stack
   if (stack and stack.valid and stack.valid_for_read and stack.is_upgrade_item) then
-    config = UPConvert.from_upgrade_planner(stack)
+    local config = UPConvert.from_upgrade_planner(stack)
     global.storage[player.index]["Imported storage"] = config
-    player.print({"upgrade-planner.import-sucessful"})
     local count = 0
-    for k, storage in pairs(global.storage[player.index]) do
+    for k, _ in pairs(global.storage[player.index]) do
       count = count + 1
     end
     global.storage_index[player.index] = count
+    player.print({"upgrade-planner.import-sucessful"})
     UPGui.open_frame(player)
     UPGui.open_frame(player)
   else
@@ -166,11 +164,11 @@ function oc_convert_ingame(event)
   end
 end
 
-function oc_import_export(event)
+local function oc_import_export(event)
   UPGui.import_export_config(event, event.element.name == "upgrade_planner_import_config_open")
 end
 
-function oc_import_config(event)
+local function oc_import_config(event)
   local player = game.players[event.player_index]
 
   if not player.opened then
@@ -186,6 +184,7 @@ function oc_import_config(event)
   end
   local text = textbox.text
   local result = loadstring(UPConvert.dec(text))
+  local new_config
   if result then
     new_config = result()
   else
@@ -203,7 +202,7 @@ function oc_import_config(event)
     player.print({"upgrade-planner.import-sucessful"})
     player.opened.destroy()
     local count = 0
-    for k, storage in pairs(global.storage[player.index]) do
+    for k, _ in pairs(global.storage[player.index]) do
       count = count + 1
     end
     global.storage_index[player.index] = count
@@ -216,7 +215,7 @@ end
 -----------------------------------------------
 -- Storage handling
 -----------------------------------------------
-function oc_storage_confirm(event)
+local function oc_storage_confirm(event)
   local player = game.players[event.player_index]
   local index = global.storage_index[player.index]
   local children = event.element.parent.children
@@ -257,7 +256,7 @@ function oc_storage_confirm(event)
   return
 end
 
-function oc_storage_rename(event)
+local function oc_storage_rename(event)
   local children = event.element.parent.children
   for k, child in pairs(children) do
     child.visible = true
@@ -268,7 +267,7 @@ function oc_storage_rename(event)
   end
 end
 
-function oc_storage_cancel(event)
+local function oc_storage_cancel(event)
   local children = event.element.parent.children
   for k = 4, 6 do
     children[k].visible = false
@@ -276,7 +275,7 @@ function oc_storage_cancel(event)
   children[4].text = children[1].get_item(children[1].selected_index)
 end
 
-function oc_storage_delete(event)
+local function oc_storage_delete(event)
   local player = game.players[event.player_index]
   local element = event.element
   local children = element.parent.children
@@ -297,7 +296,7 @@ function oc_storage_delete(event)
   return
 end
 
-function sc_default_bot(event)
+local function sc_default_bot(event)
   global.default_bot[event.player_index] = event.element.state
 end
 
