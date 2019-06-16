@@ -186,12 +186,6 @@ local function player_upgrade(player, old_entity, upgrade, upgrade_neighbours)
 
       player.cursor_stack.set_stack {name = "upgrade-builder", count = 1}
 
-      -- Create new entity data
-      local _, new_entity_data = serpent.load(serpent.dump(entity_data))
-      new_entity_data.name = upgrade.entity_to
-      new_entity_data.force = old_entity.force
-      new_entity_data.player = player
-
       -- Stash inventories for later distribution
       local inventories = {}
       for index = 1, 10 do
