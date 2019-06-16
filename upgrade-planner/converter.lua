@@ -91,7 +91,7 @@ end
 
 upgrade_planner_converter.from_upgrade_planner = function(stack)
   local config = {}
-  for i = 1, globals.MAX_STORAGE_SIZE, 1 do
+  for i = 1, globals.MAX_CONFIG_SIZE, 1 do
     local from = stack.get_mapper(i, "from").name or ""
     local to = stack.get_mapper(i, "to").name or ""
 
