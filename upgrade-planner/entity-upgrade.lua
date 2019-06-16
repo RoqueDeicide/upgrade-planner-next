@@ -156,6 +156,8 @@ local function player_upgrade(player, old_entity, upgrade, upgrade_neighbours)
       new_entity = surface.create_entity(new_entity_data)
     end
 
+    new_entity_data.fast_replace = false
+
     if old_entity.valid then
       if old_entity.type == "straight-rail" or old_entity.type == "curved-rail" then
         old_entity.destroy()
