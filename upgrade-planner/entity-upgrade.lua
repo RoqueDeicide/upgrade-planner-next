@@ -165,7 +165,7 @@ local function player_upgrade(player, old_entity, upgrade, upgrade_neighbours)
       local drop = {x = old_entity.drop_position.x, y = old_entity.drop_position.y}
       local pickup = {x = old_entity.pickup_position.x, y = old_entity.pickup_position.y}
       new_entity = surface.create_entity(new_entity_data)
-      if new_entity.valid then
+      if new_entity.valid and new_entity.type == "inserter" then
         new_entity.pickup_position = pickup
         new_entity.drop_position = drop
       end
