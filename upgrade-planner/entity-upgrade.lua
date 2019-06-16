@@ -135,74 +135,43 @@ local function player_upgrade(player, old_entity, upgrade, upgrade_neighbours)
     local f = old_entity.force
     local p = old_entity.position
     local new_entity
+    local new_entity_prototype = game.entity_prototypes[upgrade.item_to]
+    local new_entity_data = create_new_entity_data(player, old_entity, new_entity_prototype)
     local insert_item = false
 
     script.raise_event(defines.events.on_pre_player_mined_item, {player_index = player.index, entity = old_entity})
-    if old_entity.type == "underground-belt" then
-      if old_entity.neighbours and upgrade_neighbours then
-        player_upgrade(player, old_entity.neighbours, upgrade, false)
-      end
-      new_entity =
-        surface.create_entity {
-        name = upgrade.entity_to,
-        position = old_entity.position,
-        force = old_entity.force,
-        fast_replace = true,
-        direction = old_entity.direction,
-        type = old_entity.belt_to_ground_type,
-        player = player,
-        spill = false
-      }
-    elseif old_entity.type == "loader" then
-      new_entity =
-        surface.create_entity {
-        name = upgrade.entity_to,
-        position = old_entity.position,
-        force = old_entity.force,
-        fast_replace = true,
-        direction = old_entity.direction,
-        type = old_entity.loader_type,
-        player = player,
-        spill = false
-      }
-    elseif old_entity.type == "inserter" then
+    new_entity_data.fast_replace = true
+
+    if old_entity.type == "inserter" then
       local drop = {x = old_entity.drop_position.x, y = old_entity.drop_position.y}
       local pickup = {x = old_entity.pickup_position.x, y = old_entity.pickup_position.y}
-      new_entity =
-        surface.create_entity {
-        name = upgrade.entity_to,
-        position = old_entity.position,
-        force = old_entity.force,
-        fast_replace = true,
-        direction = old_entity.direction,
-        player = player,
-        spill = false
-      }
+      new_entity = surface.create_entity(new_entity_data)
       if new_entity.valid then
         new_entity.pickup_position = pickup
         new_entity.drop_position = drop
       end
-    elseif old_entity.type == "straight-rail" or old_entity.type == "curved-rail" then
-      old_entity.destroy()
-      new_entity =
-        surface.create_entity {
-        name = upgrade.entity_to,
-        position = p,
-        force = f,
-        direction = d
-      }
     else
-      new_entity =
-        surface.create_entity {
-        name = upgrade.entity_to,
-        position = old_entity.position,
-        force = old_entity.force,
-        fast_replace = true,
-        direction = old_entity.direction,
-        player = player,
-        spill = false
-      }
+      if old_entity.type == "underground-belt" then
+        if old_entity.neighbours and upgrade_neighbours then
+          player_upgrade(player, old_entity.neighbours, upgrade, false)
+        end
+      end
+      new_entity = surface.create_entity(new_entity_data)
     end
+
+    if old_entity.valid then
+      if old_entity.type == "straight-rail" or old_entity.type == "curved-rail" then
+        old_entity.destroy()
+        new_entity =
+          surface.create_entity {
+          name = upgrade.entity_to,
+          position = p,
+          force = f,
+          direction = d
+        }
+      end
+    end
+
     if old_entity.valid then
       if new_entity and new_entity.valid then
         new_entity.destroy()
