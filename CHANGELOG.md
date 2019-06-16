@@ -1,10 +1,31 @@
 # Changelog
 
+## 1.8.0
+
+### Changes
+
+- Updated player replace logic.
+- Clean-up code for clarity.
+
+### Features
+
+- Warn if replacement is blocked on non fast-replaceable entities.
+- Convert module upgrade configurations.
+
+### Bugfixes
+
+- Fix replacement eating recipe items.
+- Fix incorrect MAX_CONFIG_SIZE on convert.
+- Fix crash on export for non fast replaceable entities.
+- Fix wandering entities when upgrading between sizes
+
+---
+
 ## 1.7.2
 
 ### Bugfixes
 
-- Fix incorrect config valiation
+- Fix incorrect config validation
 
 ### Changes
 
@@ -223,7 +244,7 @@
 
 ### Bugfixes
 
-- Fix choose elem button triggering for other mod guis
+- Fix choose elem button triggering for other mod GUIs
 
 ---
 
