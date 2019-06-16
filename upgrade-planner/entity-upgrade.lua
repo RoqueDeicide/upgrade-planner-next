@@ -1,5 +1,26 @@
 local upgrade_planner_entity_upgrade = {}
 
+local function create_new_entity_data(player, old_entity, new_entity_prototype)
+  local surface = old_entity.surface
+  player.cursor_stack.set_stack {name = "blueprint", count = 1}
+  player.cursor_stack.create_blueprint {
+    surface = surface,
+    force = old_entity.force,
+    area = old_entity.bounding_box
+  }
+  local new_entity_data = player.cursor_stack.get_blueprint_entities()[1]
+  new_entity_data.name = new_entity_prototype.name
+  new_entity_data.position = old_entity.position
+  new_entity_data.force = old_entity.force
+  new_entity_data.direction = old_entity.direction
+  new_entity_data.player = player
+  new_entity_data.spill = false
+
+  player.cursor_stack.set_stack {name = "upgrade-builder", count = 1}
+
+  return new_entity_data
+end
+
 local function get_hashmap(config)
   local items = game.item_prototypes
   local hashmap = {}
