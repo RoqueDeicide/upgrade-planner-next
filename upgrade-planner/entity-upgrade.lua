@@ -96,74 +96,74 @@ local function player_upgrade_modules(player, inventory, map, owner)
   end
 end
 
-local function player_upgrade(player, entity, upgrade, upgrade_neighbours)
-  if not entity then
+local function player_upgrade(player, old_entity, upgrade, upgrade_neighbours)
+  if not old_entity then
     return
   end
   if not upgrade.entity_to then
     log("Tried to upgrade when entry had no entity: " .. serpent.line(upgrade))
     return
   end
-  if global.temporary_ignore[entity.name] then
+  if global.temporary_ignore[old_entity.name] then
     return
   end
-  local surface = entity.surface
+  local surface = old_entity.surface
   local amount = upgrade.item_amount or 1
   if player.get_item_count(upgrade.item_to) >= amount or player.cheat_mode then
-    local d = entity.direction
-    local f = entity.force
-    local p = entity.position
-    local new_item
+    local d = old_entity.direction
+    local f = old_entity.force
+    local p = old_entity.position
+    local new_entity
     local insert_item = false
 
-    script.raise_event(defines.events.on_pre_player_mined_item, {player_index = player.index, entity = entity})
-    if entity.type == "underground-belt" then
-      if entity.neighbours and upgrade_neighbours then
-        player_upgrade(player, entity.neighbours, upgrade, false)
+    script.raise_event(defines.events.on_pre_player_mined_item, {player_index = player.index, entity = old_entity})
+    if old_entity.type == "underground-belt" then
+      if old_entity.neighbours and upgrade_neighbours then
+        player_upgrade(player, old_entity.neighbours, upgrade, false)
       end
-      new_item =
+      new_entity =
         surface.create_entity {
         name = upgrade.entity_to,
-        position = entity.position,
-        force = entity.force,
+        position = old_entity.position,
+        force = old_entity.force,
         fast_replace = true,
-        direction = entity.direction,
-        type = entity.belt_to_ground_type,
+        direction = old_entity.direction,
+        type = old_entity.belt_to_ground_type,
         player = player,
         spill = false
       }
-    elseif entity.type == "loader" then
-      new_item =
+    elseif old_entity.type == "loader" then
+      new_entity =
         surface.create_entity {
         name = upgrade.entity_to,
-        position = entity.position,
-        force = entity.force,
+        position = old_entity.position,
+        force = old_entity.force,
         fast_replace = true,
-        direction = entity.direction,
-        type = entity.loader_type,
+        direction = old_entity.direction,
+        type = old_entity.loader_type,
         player = player,
         spill = false
       }
-    elseif entity.type == "inserter" then
-      local drop = {x = entity.drop_position.x, y = entity.drop_position.y}
-      local pickup = {x = entity.pickup_position.x, y = entity.pickup_position.y}
-      new_item =
+    elseif old_entity.type == "inserter" then
+      local drop = {x = old_entity.drop_position.x, y = old_entity.drop_position.y}
+      local pickup = {x = old_entity.pickup_position.x, y = old_entity.pickup_position.y}
+      new_entity =
         surface.create_entity {
         name = upgrade.entity_to,
-        position = entity.position,
-        force = entity.force,
+        position = old_entity.position,
+        force = old_entity.force,
         fast_replace = true,
-        direction = entity.direction,
+        direction = old_entity.direction,
         player = player,
         spill = false
       }
-      if new_item.valid then
-        new_item.pickup_position = pickup
-        new_item.drop_position = drop
+      if new_entity.valid then
+        new_entity.pickup_position = pickup
+        new_entity.drop_position = drop
       end
-    elseif entity.type == "straight-rail" or entity.type == "curved-rail" then
-      entity.destroy()
-      new_item =
+    elseif old_entity.type == "straight-rail" or old_entity.type == "curved-rail" then
+      old_entity.destroy()
+      new_entity =
         surface.create_entity {
         name = upgrade.entity_to,
         position = p,
@@ -171,30 +171,30 @@ local function player_upgrade(player, entity, upgrade, upgrade_neighbours)
         direction = d
       }
     else
-      new_item =
+      new_entity =
         surface.create_entity {
         name = upgrade.entity_to,
-        position = entity.position,
-        force = entity.force,
+        position = old_entity.position,
+        force = old_entity.force,
         fast_replace = true,
-        direction = entity.direction,
+        direction = old_entity.direction,
         player = player,
         spill = false
       }
     end
-    if entity.valid then
-      if new_item and new_item.valid then
-        new_item.destroy()
+    if old_entity.valid then
+      if new_entity and new_entity.valid then
+        new_entity.destroy()
       end
-      local a = entity.bounding_box
+      local a = old_entity.bounding_box
 
       -- Get current entity data and copy other values
       player.cursor_stack.set_stack {name = "blueprint", count = 1}
-      player.cursor_stack.create_blueprint {surface = surface, force = entity.force, area = a}
+      player.cursor_stack.create_blueprint {surface = surface, force = old_entity.force, area = a}
       local entity_data = player.cursor_stack.get_blueprint_entities()[1]
-      entity_data.position = entity.position
-      entity_data.force = entity.force
-      entity_data.direction = entity.direction
+      entity_data.position = old_entity.position
+      entity_data.force = old_entity.force
+      entity_data.direction = old_entity.direction
       entity_data.player = player
 
       player.cursor_stack.set_stack {name = "upgrade-builder", count = 1}
@@ -202,27 +202,27 @@ local function player_upgrade(player, entity, upgrade, upgrade_neighbours)
       -- Create new entity data
       local _, new_entity_data = serpent.load(serpent.dump(entity_data))
       new_entity_data.name = upgrade.entity_to
-      new_entity_data.force = entity.force
+      new_entity_data.force = old_entity.force
       new_entity_data.player = player
 
       -- Stash inventories for later distribution
       local inventories = {}
       for index = 1, 10 do
-        if entity.get_inventory(index) ~= nil then
+        if old_entity.get_inventory(index) ~= nil then
           inventories[index] = {}
           inventories[index].name = index
-          inventories[index].contents = entity.get_inventory(index).get_contents()
+          inventories[index].contents = old_entity.get_inventory(index).get_contents()
         end
       end
 
-      entity.destroy()
+      old_entity.destroy()
 
       -- Check if new entity can be placed, otherwise recreate the old one
       if surface.can_place_entity(new_entity_data) then
-        new_item = surface.create_entity(new_entity_data)
+        new_entity = surface.create_entity(new_entity_data)
         insert_item = true
       else
-        new_item = surface.create_entity(entity_data)
+        new_entity = surface.create_entity(entity_data)
         player.create_local_flying_text {
           text = {"upgrade-planner.upgrade-placement-blocked"},
           position = entity_data.position,
@@ -233,8 +233,8 @@ local function player_upgrade(player, entity, upgrade, upgrade_neighbours)
       -- Redistribute inventories
       for j, items in pairs(inventories) do
         for item, count in pairs(items.contents) do
-          if new_item ~= nil then
-            local inv = new_item.get_inventory(items.name)
+          if new_entity ~= nil then
+            local inv = new_entity.get_inventory(items.name)
             if inv then
               inv.insert {name = item, count = count}
             else
@@ -287,13 +287,13 @@ local function player_upgrade(player, entity, upgrade, upgrade_neighbours)
     )
     script.raise_event(
       defines.events.on_built_entity,
-      {player_index = player.index, created_entity = new_item, stack = player.cursor_stack}
+      {player_index = player.index, created_entity = new_entity, stack = player.cursor_stack}
     )
   else
-    global.temporary_ignore[entity.name] = true
+    global.temporary_ignore[old_entity.name] = true
     surface.create_entity {
       name = "flying-text",
-      position = {entity.position.x - 1.3, entity.position.y - 0.5},
+      position = {old_entity.position.x - 1.3, old_entity.position.y - 0.5},
       text = "Insufficient items",
       color = {r = 1, g = 0.6, b = 0.6}
     }
