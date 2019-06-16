@@ -96,7 +96,7 @@ local function player_upgrade_modules(player, inventory, map, owner)
   end
 end
 
-local function player_upgrade(player, entity, upgrade, bool)
+local function player_upgrade(player, entity, upgrade, upgrade_neighbours)
   if not entity then
     return
   end
@@ -116,7 +116,7 @@ local function player_upgrade(player, entity, upgrade, bool)
     local new_item
     script.raise_event(defines.events.on_pre_player_mined_item, {player_index = player.index, entity = entity})
     if entity.type == "underground-belt" then
-      if entity.neighbours and bool then
+      if entity.neighbours and upgrade_neighbours then
         player_upgrade(player, entity.neighbours, upgrade, false)
       end
       new_item =
