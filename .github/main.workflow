@@ -1,22 +1,22 @@
 workflow "Check & Release" {
   on = "push"
   resolves = [
-    "release",
-    "release-github",
+    "Factorio release",
+    "Upload GitHub artifacts",
   ]
 }
 
-action "luacheck" {
-  uses = "Roang-zero1/factorio-mod-actions/luacheck@master"
+action "lint" {
+  uses = "Roang-zero1/factorio-mod-luacheck@master"
   env = {
     LUACHECKRC_URL = "https://raw.githubusercontent.com/Nexela/Factorio-luacheckrc/0.17/.luacheckrc"
   }
 }
 
-action "package" {
-  uses = "Roang-zero1/factorio-mod-actions/package@master"
+action "Create Factorio mod package" {
+  uses = "Roang-zero1/factorio-mod-package@master"
   needs = [
-    "luacheck",
+    "lint",
   ]
 }
 
@@ -24,12 +24,12 @@ action "Tag Filter" {
   uses = "actions/bin/filter@3c0b4f0e63ea54ea5df2914b4fabf383368cd0da"
   args = "tag"
   needs = [
-    "package",
+    "Create Factorio mod package",
   ]
 }
 
-action "release" {
-  uses = "Roang-zero1/factorio-mod-actions/release@master"
+action "Factorio release" {
+  uses = "Roang-zero1/factorio-create-release-action@master"
   needs = [
     "Tag Filter"
   ]
@@ -39,12 +39,24 @@ action "release" {
   ]
 }
 
-action "release-github" {
-  uses    = "Roang-zero1/factorio-mod-actions/release-github@master"
-  needs   = [
-    "Tag Filter",
-  ]
+action "Create GitHub release" {
+  uses = "Roang-zero1/github-create-release-action@master"
+  needs = ["Tag Filter"]
+  env = {
+    VERSION_REGEX = "^[[:digit:]]+\\.[[:digit:]]+\\.[[:digit:]]+",
+    UPDATE_EXISTING = "true",
+  }
   secrets = [
-    "GITHUB_TOKEN",
+    "GITHUB_TOKEN"
+  ]
+}
+
+
+action "Upload GitHub artifacts" {
+  uses = "Roang-zero1/github-upload-release-artifacts-action@master"
+  args = [ "dist/"]
+  needs = ["Create GitHub release"]
+  secrets = [
+    "GITHUB_TOKEN"
   ]
 }
