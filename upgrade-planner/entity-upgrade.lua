@@ -114,6 +114,8 @@ local function player_upgrade(player, entity, upgrade, upgrade_neighbours)
     local f = entity.force
     local p = entity.position
     local new_item
+    local insert_item = false
+
     script.raise_event(defines.events.on_pre_player_mined_item, {player_index = player.index, entity = entity})
     if entity.type == "underground-belt" then
       if entity.neighbours and upgrade_neighbours then
@@ -181,44 +183,29 @@ local function player_upgrade(player, entity, upgrade, upgrade_neighbours)
       }
     end
     if entity.valid then
-      --If the create entity fast replace didn't work, we use this blueprint technique
       if new_item and new_item.valid then
         new_item.destroy()
       end
       local a = entity.bounding_box
+
+      -- Get current entity data and copy other values
       player.cursor_stack.set_stack {name = "blueprint", count = 1}
       player.cursor_stack.create_blueprint {surface = surface, force = entity.force, area = a}
-      local old_blueprint = player.cursor_stack.get_blueprint_entities()
-      local record_index = nil
-      for index, old_entity in pairs(old_blueprint) do
-        if (old_entity.name == old_entity.name) then
-          record_index = index
-        else
-          old_blueprint[index] = nil
-        end
-      end
-      if record_index == nil then
-        player.print("Blueprint index error line " .. debug.getinfo(1).currentline)
-        return
-      end
-      old_blueprint[record_index].name = upgrade.entity_to
-      old_blueprint[record_index].position = p
-      player.cursor_stack.set_stack {name = "blueprint", count = 1}
-      player.cursor_stack.set_blueprint_entities({old_blueprint[record_index]})
-      if not player.cheat_mode then
-        player.insert {name = upgrade.item_from, count = amount}
-      end
-      script.raise_event(
-        defines.events.on_player_mined_item,
-        {
-          player_index = player.index,
-          item_stack = {
-            name = upgrade.item_from,
-            count = amount
-          }
-        }
-      )
-      --And then copy the inventory to some table
+      local entity_data = player.cursor_stack.get_blueprint_entities()[1]
+      entity_data.position = entity.position
+      entity_data.force = entity.force
+      entity_data.direction = entity.direction
+      entity_data.player = player
+
+      player.cursor_stack.set_stack {name = "upgrade-builder", count = 1}
+
+      -- Create new entity data
+      local _, new_entity_data = serpent.load(serpent.dump(entity_data))
+      new_entity_data.name = upgrade.entity_to
+      new_entity_data.force = entity.force
+      new_entity_data.player = player
+
+      -- Stash inventories for later distribution
       local inventories = {}
       for index = 1, 10 do
         if entity.get_inventory(index) ~= nil then
@@ -227,53 +214,81 @@ local function player_upgrade(player, entity, upgrade, upgrade_neighbours)
           inventories[index].contents = entity.get_inventory(index).get_contents()
         end
       end
+
       entity.destroy()
-      player.cursor_stack.build_blueprint {surface = surface, force = f, position = {0, 0}}
-      local ghost = surface.find_entities_filtered {area = a, name = "entity-ghost"}
-      local p_x = player.position.x
-      local p_y = player.position.y
-      while ghost[1] ~= nil do
-        ghost[1].revive()
-        player.teleport({math.random(p_x - 5, p_x + 5), math.random(p_y - 5, p_y + 5)})
-        ghost = surface.find_entities_filtered {area = a, name = "entity-ghost"}
+
+      -- Check if new entity can be placed, otherwise recreate the old one
+      if surface.can_place_entity(new_entity_data) then
+        new_item = surface.create_entity(new_entity_data)
+        insert_item = true
+      else
+        new_item = surface.create_entity(entity_data)
+        player.create_local_flying_text {
+          text = {"upgrade-planner.upgrade-placement-blocked"},
+          position = entity_data.position,
+          color = {r = 1, g = 0, b = 0}
+        }
       end
-      player.teleport({p_x, p_y})
-      local assembling = surface.find_entities_filtered {area = a, name = upgrade.entity_to}[1]
-      if not assembling then
-        player.print("Upgrade planner error - Entity to raise was not found")
-        player.cursor_stack.set_stack {name = "upgrade-builder", count = 1}
-        player.insert {name = upgrade.item_from, count = amount}
-        return
-      end
-      script.raise_event(defines.events.on_built_entity, {player_index = player.index, created_entity = assembling})
-      --Give back the inventory to the new entity
+
+      -- Redistribute inventories
       for j, items in pairs(inventories) do
-        for l, contents in pairs(items.contents) do
-          if assembling ~= nil then
-            local inv = assembling.get_inventory(items.name)
+        for item, count in pairs(items.contents) do
+          if new_item ~= nil then
+            local inv = new_item.get_inventory(items.name)
             if inv then
-              inv.insert {name = l, count = contents}
+              inv.insert {name = item, count = count}
+            else
+              local num = player.insert {name = item, count = count}
+              if num < count then
+                player.surface.spill_item_stack(
+                  player.position,
+                  {
+                    name = item,
+                    count = (count - num)
+                  },
+                  true,
+                  nil,
+                  false
+                )
+              end
             end
           end
         end
       end
+
       local proxy = surface.find_entities_filtered {area = a, name = "item-request-proxy"}
       if proxy[1] ~= nil then
         proxy[1].destroy()
       end
-      player.cursor_stack.set_stack {name = "upgrade-builder", count = 1}
-    else
-      player.remove_item {name = upgrade.item_to, count = amount}
-      --player.insert{name = upgrade.item_from, count = amount}
-      script.raise_event(
-        defines.events.on_player_mined_item,
-        {player_index = player.index, item_stack = {name = upgrade.item_from, count = 1}}
-      )
-      script.raise_event(
-        defines.events.on_built_entity,
-        {player_index = player.index, created_entity = new_item, stack = player.cursor_stack}
-      )
     end
+
+    -- Insert items not replaced with fast-replace
+    if insert_item then
+      local inser_cnt = player.insert {name = upgrade.item_from, count = amount}
+      if inser_cnt < amount then
+        player.surface.spill_item_stack(
+          player.position,
+          {
+            name = upgrade.item_from,
+            count = (amount - inser_cnt)
+          },
+          true,
+          nil,
+          false
+        )
+      end
+    end
+
+    -- Raise appropriate events
+    player.remove_item {name = upgrade.item_to, count = amount}
+    script.raise_event(
+      defines.events.on_player_mined_item,
+      {player_index = player.index, item_stack = {name = upgrade.item_from, count = 1}}
+    )
+    script.raise_event(
+      defines.events.on_built_entity,
+      {player_index = player.index, created_entity = new_item, stack = player.cursor_stack}
+    )
   else
     global.temporary_ignore[entity.name] = true
     surface.create_entity {
