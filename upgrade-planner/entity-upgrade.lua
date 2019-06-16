@@ -131,9 +131,6 @@ local function player_upgrade(player, old_entity, upgrade, upgrade_neighbours)
   local surface = old_entity.surface
   local amount = upgrade.item_amount or 1
   if player.get_item_count(upgrade.item_to) >= amount or player.cheat_mode then
-    local d = old_entity.direction
-    local f = old_entity.force
-    local p = old_entity.position
     local new_entity
     local new_entity_prototype = game.entity_prototypes[upgrade.item_to]
     local new_entity_data = create_new_entity_data(player, old_entity, new_entity_prototype)
@@ -165,9 +162,9 @@ local function player_upgrade(player, old_entity, upgrade, upgrade_neighbours)
         new_entity =
           surface.create_entity {
           name = upgrade.entity_to,
-          position = p,
-          force = f,
-          direction = d
+          position = old_entity.position,
+          force = old_entity.force,
+          direction = old_entity.direction
         }
       end
     end
