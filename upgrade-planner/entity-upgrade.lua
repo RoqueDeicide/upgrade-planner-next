@@ -387,7 +387,13 @@ upgrade_planner_entity_upgrade.upgrade_area_bot = function(event)
     if entity.valid then
       local upgrade = hashmap[entity.name]
       if upgrade and upgrade ~= "" then
-        entity.order_upgrade({force = entity.force, target = upgrade["entity_to"]})
+        entity.order_upgrade(
+          {
+            force = entity.force,
+            target = upgrade["entity_to"],
+            player = player
+          }
+        )
       end
       if entity.valid and entity.get_module_inventory() then
         robot_upgrade_modules(entity.get_module_inventory(), hashmap, entity)
