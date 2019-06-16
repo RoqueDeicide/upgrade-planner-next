@@ -107,7 +107,7 @@ local function player_upgrade(player, entity, upgrade, upgrade_neighbours)
   if global.temporary_ignore[entity.name] then
     return
   end
-  local surface = player.surface
+  local surface = entity.surface
   local amount = upgrade.item_amount or 1
   if player.get_item_count(upgrade.item_to) >= amount or player.cheat_mode then
     local d = entity.direction
