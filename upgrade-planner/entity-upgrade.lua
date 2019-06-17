@@ -8,31 +8,9 @@ local function create_new_entity_data(player, old_entity, new_entity_prototype)
     force = old_entity.force,
     area = old_entity.bounding_box
   }
-  local old_width = old_entity.bounding_box.right_bottom.x - old_entity.bounding_box.left_top.x
-  local old_height = old_entity.bounding_box.right_bottom.y - old_entity.bounding_box.left_top.y
-
-  local new_width = new_entity_prototype.collision_box.right_bottom.x - new_entity_prototype.collision_box.left_top.x
-  local new_height = new_entity_prototype.collision_box.right_bottom.y - new_entity_prototype.collision_box.left_top.y
-
-  local diff_width = old_width - new_width
-  local diff_height = old_height - new_height
-
-  local new_x = old_entity.position.x
-  local new_y = old_entity.position.y
-
-  if diff_height > 0 and ((diff_height % 2) > 0.5 and (diff_height % 2) < 1.5) then
-    game.print("red h")
-    new_y = new_y - 1
-  end
-
-  if diff_width > 0 and ((diff_width % 2) > 0.5 and (diff_width % 2) < 1.5) then
-    game.print("red w")
-    new_x = new_x - 1
-  end
-
   local new_entity_data = player.cursor_stack.get_blueprint_entities()[1]
   new_entity_data.name = new_entity_prototype.name
-  new_entity_data.position = {x = new_x, y = new_y}
+  new_entity_data.position = old_entity.position
   new_entity_data.force = old_entity.force
   new_entity_data.direction = old_entity.direction
   new_entity_data.player = player
