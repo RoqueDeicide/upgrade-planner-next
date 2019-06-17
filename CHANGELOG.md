@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.8.1
+
+- Revert: Fix wandering entities when upgrading between sizes
+
 ## 1.8.0
 
 ### Changes

@@ -1,4 +1,10 @@
 {
+  "1.8.1": {
+    "Date": "2019-06-18",
+    "Changes": [
+      "Revert: Fix wandering entities when upgrading between sizes"
+    ]
+  },
   "1.8.0": {
     "Date": "2019-06-16",
     "Categories": {
