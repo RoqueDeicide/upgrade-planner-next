@@ -107,7 +107,7 @@ local function player_upgrade_modules(player, inventory, map, owner)
             owner.surface.create_entity {
               name = "flying-text",
               position = {owner.position.x - 1.3, owner.position.y - 0.5},
-              text = "Insufficient items",
+              text = {"upgrade-planner.insufficient-items"},
               color = {r = 1, g = 0.6, b = 0.6}
             }
           end
@@ -277,7 +277,7 @@ local function player_upgrade(player, old_entity, upgrade, upgrade_neighbours)
     surface.create_entity {
       name = "flying-text",
       position = {old_entity.position.x - 1.3, old_entity.position.y - 0.5},
-      text = "Insufficient items",
+      text = {"upgrade-planner.insufficient-items"},
       color = {r = 1, g = 0.6, b = 0.6}
     }
   end
