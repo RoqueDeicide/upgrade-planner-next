@@ -160,6 +160,7 @@ local function player_upgrade(player, old_entity, upgrade, upgrade_neighbours)
 
     script.raise_event(defines.events.on_pre_player_mined_item, {player_index = player.index, entity = old_entity})
     new_entity_data.fast_replace = true
+    new_entity_data.create_build_effect_smoke = false
 
     if old_entity.type == "inserter" then
       local drop = {x = old_entity.drop_position.x, y = old_entity.drop_position.y}
