@@ -84,8 +84,10 @@ local function check_module_eligibility(name, recipe)
   if not item.limitations then
     return true
   end
-  if item.limitations[recipe.name] then
-    return true
+  for _, limitation in pairs(item.limitations) do
+    if limitation == recipe.name then
+      return true
+    end
   end
   return false
 end
