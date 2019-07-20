@@ -1,8 +1,24 @@
 # Changelog
 
+## 2.0.0
+
+### Changes
+
+- Changed import/export to use json instead of lua, this should prevent unauthenticated code execution. THIS IS A BREAKING CHANGE! more: https://github.com/Roang-zero1/upgrade-planner-next/issues/5
+
+### Bugfixes
+
+- Fix generation of build smoke on failed upgrade.
+- Fix jumping entities (again), I have tested it thoughly please let me know about any issues.
+- Fix module upgrades, they should work correctly again
+
+---
+
 ## 1.8.1
 
 - Revert: Fix wandering entities when upgrading between sizes
+
+---
 
 ## 1.8.0
 

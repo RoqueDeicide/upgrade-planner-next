@@ -1,9 +1,23 @@
 {
+  "2.0.0": {
+    "Date": "2019-07-20",
+    "Categories": {
+      "Changes": [
+        {
+          "change": "Changed import/export to use json instead of lua, this should prevent unauthenticated code execution. THIS IS A BREAKING CHANGE!",
+          "more": "https://github.com/Roang-zero1/upgrade-planner-next/issues/5"
+        }
+      ],
+      "Bugfixes": [
+        "Fix generation of build smoke on failed upgrade.",
+        "Fix jumping entities (again), I have tested it thoughly please let me know about any issues.",
+        "Fix module upgrades, they should work correctly again"
+      ]
+    }
+  },
   "1.8.1": {
     "Date": "2019-06-18",
-    "Changes": [
-      "Revert: Fix wandering entities when upgrading between sizes"
-    ]
+    "Changes": ["Revert: Fix wandering entities when upgrading between sizes"]
   },
   "1.8.0": {
     "Date": "2019-06-16",
@@ -66,14 +80,12 @@
   },
   "1.6.8": {
     "Date": "2019-06-04",
-
     "Categories": {
       "Bugfixes": ["Revert: Add option to switch upgrade default mode"]
     }
   },
   "1.6.7": {
     "Date": "2019-06-04",
-
     "Categories": {
       "Features": ["Add option to switch upgrade default mode"],
       "Bugfixes": ["Fix item override on Upgrade Planner export"]
@@ -99,7 +111,6 @@
   " 1.6.3": {
     "Categories": {
       "Features": ["Add Import from/Export to the official Upgrade Planner"],
-
       "Changes": ["Align GUI with in-game Upgrade Planner"]
     }
   },
@@ -200,7 +211,6 @@
         "Removed deconstructing trees, use filtered deconstruction planners, I felt it was outside the scope of the mod.",
         "I also cleaned up a lot of the original authors code, or some other maintainers. It is somewhat cleaner now"
       ],
-
       "Bugfixes": ["Fixed some other minor issues."]
     }
   },
