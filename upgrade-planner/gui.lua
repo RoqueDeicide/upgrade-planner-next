@@ -318,8 +318,7 @@ upgrade_planner_gui.import_export_config =
       textfield.style.minimal_height = 200
       textfield.style.maximal_height = 500
       if not import then
-        textfield.text = UPConvert.enc(
-                             serpent.dump(global.storage[player.index]))
+        textfield.text = game.table_to_json(global.storage[player.index])
       end
       local flow = frame.add{type = "flow"}
       if import then

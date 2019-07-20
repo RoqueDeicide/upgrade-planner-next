@@ -164,14 +164,7 @@ local function oc_import_config(event)
   local textbox = frame.children[1]
   if not textbox.type == "text-box" then return end
   local text = textbox.text
-  local result = loadstring(UPConvert.dec(text))
-  local new_config
-  if result then
-    new_config = result()
-  else
-    player.print({"upgrade-planner.import-failed"})
-    return
-  end
+  local new_config = game.json_to_table(text)
   if new_config then
     for name, config in pairs(new_config) do
       if name == "New storage" then
