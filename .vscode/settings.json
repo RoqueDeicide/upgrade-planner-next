@@ -11,7 +11,22 @@
         "plaintext",
         "git-commit",
         "lua",
-        "shellscript"
+        "shellscript",
+        "github-actions",
+        "json",
+        "properties"
     ],
-    "editor.formatOnSave": true
+    "editor.formatOnSave": true,
+    "[dockerfile]": {
+        "editor.formatOnSave": false
+    },
+    "[github-actions]": {
+        "editor.formatOnSave": false
+    },
+    "spellright.parserByClass": {
+        "properties": {
+            "parser": "plain"
+        }
+    },
+    "vscode-lua-format.configPath": ".luaformat",
 }
