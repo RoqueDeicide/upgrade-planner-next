@@ -4,7 +4,7 @@
 
 ### Changes
 
-- Changed import/export to use json instead of lua, this should prevent unauthenticated code execution. THIS IS A BREAKING CHANGE! more: https://github.com/Roang-zero1/upgrade-planner-next/issues/5
+- Changed import/export to use json instead of lua, this should prevent unauthenticated code execution. THIS IS A BREAKING CHANGE! more: [Issue #5](https://github.com/Roang-zero1/upgrade-planner-next/issues/5)
 
 ### Bugfixes
 
