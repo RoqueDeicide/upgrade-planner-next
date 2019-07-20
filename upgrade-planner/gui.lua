@@ -1,5 +1,4 @@
 local mod_gui = require("mod-gui")
-local UPConvert = require("upgrade-planner/converter")
 local UPUtility = require("utility")
 local UPGlobals = require("globals")
 
