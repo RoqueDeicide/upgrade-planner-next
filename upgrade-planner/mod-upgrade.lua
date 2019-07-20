@@ -29,5 +29,5 @@ return {
       UPGui.open_frame(player)
       UPGui.open_frame(player)
     end
-  end
+  end,
 }
