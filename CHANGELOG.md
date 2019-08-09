@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.0.1
+
+### Bugfixes
+
+- Fix jumping of rotated entities more: [Issue #6](https://github.com/Roang-zero1/upgrade-planner-next/issues/6)
+
+---
+
 ## 2.0.0
 
 ### Changes
@@ -9,7 +17,7 @@
 ### Bugfixes
 
 - Fix generation of build smoke on failed upgrade.
-- Fix jumping entities (again), I have tested it thoughly please let me know about any issues.
+- Fix jumping entities (again), I have tested it thoroughly please let me know about any issues.
 - Fix module upgrades, they should work correctly again
 
 ---
