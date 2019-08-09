@@ -18,6 +18,10 @@ local function create_new_entity_data(player, old_entity, new_entity_prototype)
   local new_height = new_entity_prototype.collision_box.right_bottom.y -
                          new_entity_prototype.collision_box.left_top.y
 
+  if old_entity.direction == 2 or old_entity.direction == 6 then
+    new_width, new_height = new_height, new_width
+  end
+
   local diff_width = old_width - new_width
   local diff_height = old_height - new_height
 
