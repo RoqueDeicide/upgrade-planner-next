@@ -436,8 +436,8 @@ local function update_blueprint_entities(stack, hashmap)
       local items_to_place = prototype.items_to_place_this
       local item = nil
       if items_to_place then
-        for _, stack in pairs(items_to_place) do
-          item = hashmap[stack.name]
+        for _, item_stack in pairs(items_to_place) do
+          item = hashmap[item_stack.name]
           if item and item.item_to then break end
         end
       end
