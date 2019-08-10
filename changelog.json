@@ -1,4 +1,10 @@
 {
+  "2.0.2": {
+    "Date": "2019-08-11",
+    "Categories": {
+      "Bugfixes": ["Fix upgrading tiles in blueprints"]
+    }
+  },
   "2.0.1": {
     "Date": "2019-08-09",
     "Categories": {

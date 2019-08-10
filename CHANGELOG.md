@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.0.2
+
+### Bugfixes
+
+- Fix upgrading tiles in blueprints
+
+---
+
 ## 2.0.1
 
 ### Bugfixes
