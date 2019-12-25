@@ -1,12 +1,12 @@
 {
   "2.0.2": {
-    "Date": "2019-08-11",
+    "date": "2019-08-11",
     "Categories": {
       "Bugfixes": ["Fix upgrading tiles in blueprints"]
     }
   },
   "2.0.1": {
-    "Date": "2019-08-09",
+    "date": "2019-08-09",
     "Categories": {
       "Bugfixes": [
         {
@@ -19,7 +19,7 @@
     }
   },
   "2.0.0": {
-    "Date": "2019-07-20",
+    "date": "2019-07-20",
     "Categories": {
       "Changes": [
         {
@@ -37,11 +37,11 @@
     }
   },
   "1.8.1": {
-    "Date": "2019-06-18",
+    "date": "2019-06-18",
     "Changes": ["Revert: Fix wandering entities when upgrading between sizes"]
   },
   "1.8.0": {
-    "Date": "2019-06-16",
+    "date": "2019-06-16",
     "Categories": {
       "Changes": [
         "Updated player replace logic.",
@@ -69,7 +69,7 @@
     }
   },
   "1.7.1": {
-    "Date": "2019-06-11",
+    "date": "2019-06-11",
     "Categories": {
       "Features": ["Export to In-Game upgrade planner no exports half pairs"],
       "Bugfixes": [
@@ -83,7 +83,7 @@
     }
   },
   "1.7.0": {
-    "Date": "2019-06-10",
+    "date": "2019-06-10",
     "Categories": {
       "Features": [
         "Add an (working) option to switch to default bot upgrading",
@@ -100,13 +100,13 @@
     }
   },
   "1.6.8": {
-    "Date": "2019-06-04",
+    "date": "2019-06-04",
     "Categories": {
       "Bugfixes": ["Revert: Add option to switch upgrade default mode"]
     }
   },
   "1.6.7": {
-    "Date": "2019-06-04",
+    "date": "2019-06-04",
     "Categories": {
       "Features": ["Add option to switch upgrade default mode"],
       "Bugfixes": ["Fix item override on Upgrade Planner export"]
