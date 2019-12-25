@@ -152,7 +152,13 @@ local function player_upgrade(player, old_entity, upgrade, upgrade_neighbours)
   local amount = upgrade.item_amount or 1
   if player.get_item_count(upgrade.item_to) >= amount or player.cheat_mode then
     local new_entity
-    local new_entity_prototype = game.entity_prototypes[upgrade.item_to]
+    local new_entity_prototype
+    if string.find(upgrade.item_to, "miniloader") then
+      local prototype_to = upgrade.item_to .. '-inserter'
+      new_entity_prototype = game.entity_prototypes[prototype_to]
+    else
+      new_entity_prototype = game.entity_prototypes[upgrade.item_to]
+    end
     local new_entity_data = create_new_entity_data(player, old_entity,
                                                    new_entity_prototype)
     local insert_item = false
