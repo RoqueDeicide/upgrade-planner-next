@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.0.3 (2019-12-24)
+
+### Bugfixes
+
+- Fix upgrading miniloaders
+
+---
+
 ## 2.0.2 (2019-08-11)
 
 ### Bugfixes

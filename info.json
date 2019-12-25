@@ -1,6 +1,6 @@
 {
   "name": "upgrade-planner-next",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "title": "Upgrade Builder and Planner",
   "author": "Roang",
   "description": "Automatically upgrade buildings by hand or with construction robots.",

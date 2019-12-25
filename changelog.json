@@ -1,4 +1,10 @@
 {
+  "2.0.3": {
+    "date": "2019-12-24",
+    "Categories": {
+      "Bugfixes": ["Fix upgrading miniloaders"]
+    }
+  },
   "2.0.2": {
     "date": "2019-08-11",
     "Categories": {
