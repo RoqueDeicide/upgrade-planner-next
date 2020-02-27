@@ -1,4 +1,20 @@
 {
+  "2.1.1": {
+    "date": "2020-02-27",
+    "Categories": {
+      "Bugfixes": [
+        {
+          "change": "Fix trash_bin icon rename",
+          "more": {
+            "PR #10": "https://github.com/Roang-zero1/upgrade-planner-next/pull/10"
+          },
+          "by": {
+            "RoqueDeicide": "https://github.com/RoqueDeicide"
+          }
+        }
+      ]
+    }
+  },
   "2.1.0": {
     "date": "2020-01-23",
     "Changes": ["0.18 release"]

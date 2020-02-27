@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.1.1 (2020-02-27)
+
+### Bugfixes
+
+- Fix trash_bin icon rename more: [PR #10](https://github.com/Roang-zero1/upgrade-planner-next/pull/10) by [RoqueDeicide](https://github.com/RoqueDeicide)
+
+---
+
 ## 2.1.0 (2020-01-23)
 
 - 0.18 release
