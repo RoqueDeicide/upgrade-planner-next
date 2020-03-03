@@ -133,7 +133,7 @@ local function open_frame(player)
   local remove_button = storage_flow.add{
     type = "sprite-button",
     name = "upgrade_planner_storage_delete",
-    sprite = "utility/trash_bin",
+    sprite = "utility/trash",
     tooltip = {"upgrade-planner.delete-storage-button-tooltip"},
   }
   remove_button.style = "red_slot_button"
